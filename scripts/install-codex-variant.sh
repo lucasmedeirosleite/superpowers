@@ -34,6 +34,8 @@ python3 "$REPO_ROOT/scripts/validate-codex-ai-roles.py" \
 
 variant_marketplace_json >"$marketplaces_file"
 variant_plugins_json >"$plugins_file"
+variant_validate_plugins_json "$plugins_file" ||
+  variant_die "Codex plugin list JSON is invalid"
 
 marketplace_added=false
 plugin_added=false

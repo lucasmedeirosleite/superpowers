@@ -35,6 +35,8 @@ marketplaces_file="$(mktemp)"
 trap 'rm -f "$plugins_file" "$marketplaces_file"' EXIT
 variant_plugins_json >"$plugins_file"
 variant_marketplace_json >"$marketplaces_file"
+variant_validate_plugins_json "$plugins_file" ||
+  variant_die "Codex plugin list JSON is invalid"
 
 if [[ "$agents_link_added" == "true" &&
   ( -e "$AGENTS_TARGET" || -L "$AGENTS_TARGET" ) ]]; then
@@ -43,7 +45,9 @@ if [[ "$agents_link_added" == "true" &&
 fi
 
 marketplace_root="$(variant_marketplace_root "$marketplaces_file" "superpowers-dev")"
-if [[ "$marketplace_added" == "true" && -n "$marketplace_root" ]]; then
+if [[ "$marketplace_added" == "true" || "$plugin_added" == "true" ]]; then
+  [[ -n "$marketplace_root" ]] ||
+    variant_die "refusing to remove managed resources without the superpowers-dev marketplace"
   [[ "$(variant_realpath "$marketplace_root")" == "$(variant_realpath "$REPO_ROOT")" ]] ||
     variant_die "refusing to remove foreign superpowers-dev marketplace"
 fi

@@ -41,6 +41,27 @@ variant_plugins_json() {
     "$CODEX_BIN_PATH" plugin list --json
 }
 
+variant_validate_plugins_json() {
+  local json_file="$1"
+  python3 - "$json_file" <<'PY'
+import json
+import sys
+
+try:
+    data = json.load(open(sys.argv[1], encoding="utf-8"))
+    if not isinstance(data, dict):
+        raise ValueError("expected an object with an installed list")
+    installed = data.get("installed", [])
+    if not isinstance(installed, list):
+        raise ValueError("expected an object with an installed list")
+    if not all(isinstance(item, dict) for item in installed):
+        raise ValueError("installed entries must be objects")
+except (OSError, ValueError, json.JSONDecodeError) as error:
+    print(f"invalid Codex plugin list JSON: {error}", file=sys.stderr)
+    raise SystemExit(1)
+PY
+}
+
 variant_marketplace_root() {
   local json_file="$1"
   local marketplace_name="$2"

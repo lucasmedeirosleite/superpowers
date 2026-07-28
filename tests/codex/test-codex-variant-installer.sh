@@ -123,10 +123,15 @@ run_capture "$INSTALLER"
 fresh_case
 seed_plugin "superpowers@openai-curated"
 run_capture "$INSTALLER"
-[[ "$STATUS" -ne 0 && "$OUTPUT" == *"explicit user approval"* ]] ||
+[[ "$STATUS" -ne 0 && "$OUTPUT" == *"explicit user approval"* &&
+  ! -s "$FAKE_STATE/commands.log" ]] ||
   fail "official plugin conflict diagnostic"
-! grep -q 'plugin remove' "$FAKE_STATE/commands.log" ||
-  fail "official plugin was automatically removed"
+
+fresh_case
+printf '{not valid JSON\n' >"$FAKE_STATE/plugins.json"
+run_capture "$INSTALLER"
+[[ "$STATUS" -ne 0 && ! -s "$FAKE_STATE/commands.log" ]] ||
+  fail "malformed plugin list mutated state"
 
 fresh_case
 seed_marketplace "/different/checkout"
@@ -163,6 +168,24 @@ grep -q '^plugin remove superpowers@superpowers-dev --json$' "$FAKE_STATE/comman
   fail "owned plugin not removed"
 grep -q '^plugin marketplace remove superpowers-dev --json$' "$FAKE_STATE/commands.log" ||
   fail "owned marketplace not removed"
+
+fresh_case
+seed_marketplace "$REPO_ROOT"
+run_capture "$INSTALLER"
+[[ "$STATUS" -eq 0 ]] || fail "partial-state setup"
+python3 - "$TEST_CODEX_HOME/superpowers-variant-state.json" <<'PY'
+import json, sys
+state = json.load(open(sys.argv[1], encoding="utf-8"))
+assert state["marketplace_added"] is False
+assert state["plugin_added"] is True
+PY
+seed_marketplace "/different/checkout"
+before="$(wc -l <"$FAKE_STATE/commands.log")"
+run_capture "$UNINSTALLER"
+after="$(wc -l <"$FAKE_STATE/commands.log")"
+[[ "$STATUS" -ne 0 && "$before" -eq "$after" &&
+  -L "$TEST_CODEX_HOME/agents/superpowers" ]] ||
+  fail "repointed marketplace did not stop uninstall before removal"
 
 fresh_case
 run_capture "$INSTALLER"
