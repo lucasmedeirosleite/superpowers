@@ -31,13 +31,31 @@ HEAD_SHA=$(git rev-parse HEAD)
 
 **2. Choose and dispatch the reviewer:**
 
-- one completed plan task: `superpowers-task-reviewer`
-- a fix-only diff with known findings: `superpowers-re-reviewer`
-- a major feature or whole branch before merge: `superpowers-final-reviewer`
+Three operating modes apply here, in this precedence order:
 
-Fill the template at [code-reviewer.md](code-reviewer.md). If the selected
-role is unavailable, stop and report its configured model and effort instead
-of dispatching an untyped reviewer.
+1. **Managed native-role variant active.** The complete Superpowers
+   native-role set is exposed — Codex discovers it through the managed
+   `~/.codex/agents/superpowers` link created by this checkout's
+   `scripts/install-codex-variant.sh`. Choose by review scope:
+
+   - one completed plan task: `superpowers-task-reviewer`
+   - a fix-only diff with known findings: `superpowers-re-reviewer`
+   - a major feature or whole branch before merge: `superpowers-final-reviewer`
+
+2. **Variant active but unavailable.** The variant is active, yet Codex
+   reports the selected role, its configured model, or its reasoning effort
+   unavailable: stop and report the role's configured model and effort
+   instead of dispatching an untyped reviewer. Never silently substitute
+   another role or inherit the parent model.
+3. **Standard packaged plugin.** No Superpowers native roles are exposed
+   at all — for example after installing the standard packaged plugin,
+   which contains no role definitions. Dispatch a generic reviewer
+   subagent, choosing its model explicitly with the same judgment scaled to
+   the diff's size, complexity, and risk. This is the non-variant operating
+   mode, not a fallback from a failed role: mode 2's stop rule applies only
+   while the variant is active.
+
+Fill the template at [code-reviewer.md](code-reviewer.md).
 
 **Placeholders:**
 - `{DESCRIPTION}` - Brief summary of what you built

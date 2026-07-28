@@ -68,9 +68,9 @@ Each agent gets:
 Issue all three subagent dispatches in the same response — they run in parallel:
 
 ```text
-Subagent (superpowers-implementer-mechanical): "Fix agent-tool-abort.test.ts failures"
-Subagent (superpowers-implementer-mechanical): "Fix batch-completion-behavior.test.ts failures"
-Subagent (superpowers-implementer-mechanical): "Fix tool-approval-race-conditions.test.ts failures"
+Subagent (superpowers-implementer-mechanical, or generic cheap tier without the native variant): "Fix agent-tool-abort.test.ts failures"
+Subagent (superpowers-implementer-mechanical, or generic cheap tier without the native variant): "Fix batch-completion-behavior.test.ts failures"
+Subagent (superpowers-implementer-mechanical, or generic cheap tier without the native variant): "Fix tool-approval-race-conditions.test.ts failures"
 # All three run concurrently.
 ```
 
@@ -78,7 +78,28 @@ Multiple dispatch calls in one response = parallel execution. One per response =
 
 ### Codex native role routing
 
-Choose by the delegated outcome:
+This routing has three operating modes, in this precedence order:
+
+1. **Managed native-role variant active.** The complete Superpowers
+   native-role set is exposed — Codex discovers it through the managed
+   `~/.codex/agents/superpowers` link created by this checkout's
+   `scripts/install-codex-variant.sh`. Every parallel dispatch names its
+   role.
+2. **Variant active but unavailable.** The variant is active, yet Codex
+   reports a required role, its configured model, or its reasoning effort
+   unavailable: stop that dispatch and report the missing role; do not fall
+   back silently.
+3. **Standard packaged plugin.** No Superpowers native roles are exposed
+   at all — for example after installing the standard packaged plugin,
+   which contains no role definitions. Keep the generic platform-neutral
+   dispatch below, selecting each agent's model explicitly by delegated
+   outcome. This is the non-variant operating mode, not a fallback from a
+   failed role: mode 2's stop rule applies only while the variant is
+   active, and a failed role dispatch in mode 1 never silently drops into
+   mode 3.
+
+When the complete Superpowers native-role set is exposed, choose by the
+delegated outcome:
 
 - narrow read-only lookup: `superpowers-explorer`
 - root-cause analysis or broad independent investigation:
@@ -87,8 +108,9 @@ Choose by the delegated outcome:
   `superpowers-implementer`, or `superpowers-implementer-complex` using the
   same complexity signals as subagent-driven-development
 
-All parallel calls must name their role. If a required role is unavailable,
-stop that dispatch and report the missing role; do not fall back silently.
+In this mode all parallel calls must name their role. When no native roles
+are exposed at all (mode 3), name each agent's model tier instead; the
+explicit-model requirement applies in every mode.
 
 ### 4. Review and Integrate
 

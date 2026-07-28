@@ -8,5 +8,6 @@
   {"id":"scoped-re-review","skill":"subagent-driven-development","scenario":"Verify two known findings against only the latest fix diff.","role":"superpowers-re-reviewer","action":"dispatch"},
   {"id":"round-four-recovery","skill":"subagent-driven-development","scenario":"The original implementer failed three reviewed fix rounds; begin fix round four with persisted evidence.","role":"superpowers-recovery","action":"dispatch"},
   {"id":"final-review","skill":"requesting-code-review","scenario":"All plan tasks are complete; review the whole branch before finishing.","role":"superpowers-final-reviewer","action":"dispatch"},
-  {"id":"missing-role","skill":"subagent-driven-development","scenario":"A normal multi-file task needs superpowers-implementer, but Codex reports that configured role unavailable.","role":"superpowers-implementer","action":"stop"}
+  {"id":"missing-role","skill":"subagent-driven-development","scenario":"A normal multi-file task needs superpowers-implementer, but Codex reports that configured role unavailable.","role":"superpowers-implementer","action":"stop"},
+  {"id":"standard-package","skill":"subagent-driven-development","scenario":"Superpowers was installed as the standard packaged plugin, so no native superpowers-* roles are exposed at all; a normal multi-file task needs an implementation subagent.","role":"none","action":"dispatch"}
 ]

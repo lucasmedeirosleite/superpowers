@@ -210,4 +210,48 @@ run_capture "$UNINSTALLER"
 [[ "$STATUS" -eq 0 && "$OUTPUT" == *"No managed"* ]] ||
   fail "missing state is not a no-op"
 
+# Injected failure between the marketplace mutation and the plugin
+# mutation: the first install dies after `plugin marketplace add` but
+# before `plugin add`. The accumulated ownership state must already record
+# the marketplace, and a retry must complete without duplicating it.
+fresh_case
+set +e
+OUTPUT="$(
+  SUPERPOWERS_CODEX_BIN="$FAKE_CODEX" \
+  SUPERPOWERS_CODEX_HOME="$TEST_CODEX_HOME" \
+  SUPERPOWERS_FAKE_CODEX_STATE="$FAKE_STATE" \
+  SUPERPOWERS_FAKE_FAIL_ON="plugin add superpowers@superpowers-dev --json" \
+  "$INSTALLER" 2>&1
+)"
+STATUS=$?
+set -e
+[[ "$STATUS" -ne 0 ]] || fail "injected mid-install failure did not stop install"
+grep -q '^plugin marketplace add ' "$FAKE_STATE/commands.log" ||
+  fail "marketplace mutation missing before injected failure"
+! grep -q '^plugin add ' "$FAKE_STATE/commands.log" ||
+  fail "plugin mutation ran despite injected failure"
+python3 - "$TEST_CODEX_HOME/superpowers-variant-state.json" <<'PY'
+import json, sys
+state = json.load(open(sys.argv[1], encoding="utf-8"))
+assert state["marketplace_added"] is True, state
+assert state["plugin_added"] is False, state
+assert state["agents_link_added"] is False, state
+PY
+
+run_capture "$INSTALLER"
+[[ "$STATUS" -eq 0 ]] || fail "retry after injected failure: $OUTPUT"
+[[ "$(readlink "$TEST_CODEX_HOME/agents/superpowers")" == "$REPO_ROOT/agents" ]] ||
+  fail "agents link missing after retry"
+[[ "$(grep -c '^plugin marketplace add ' "$FAKE_STATE/commands.log")" -eq 1 ]] ||
+  fail "retry duplicated the marketplace mutation"
+[[ "$(grep -c '^plugin add superpowers@superpowers-dev --json$' "$FAKE_STATE/commands.log")" -eq 1 ]] ||
+  fail "retry did not complete the plugin mutation exactly once"
+python3 - "$TEST_CODEX_HOME/superpowers-variant-state.json" <<'PY'
+import json, sys
+state = json.load(open(sys.argv[1], encoding="utf-8"))
+assert state["marketplace_added"] is True
+assert state["plugin_added"] is True
+assert state["agents_link_added"] is True
+PY
+
 printf 'All Codex variant installer tests passed\n'

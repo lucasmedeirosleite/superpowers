@@ -158,8 +158,68 @@ class CodexAIRolesTest(unittest.TestCase):
             REPO_ROOT / "skills" / "subagent-driven-development" / "SKILL.md"
         ).read_text(encoding="utf-8")
         self.assertIn("Select and dispatch an applicable implementation role", skill)
-        self.assertIn("dispatch `superpowers-task-reviewer`", skill)
+        self.assertIn("superpowers-task-reviewer", skill)
         self.assertNotIn("Dispatch implementer subagent", skill)
+
+    def read_skills(self):
+        return {
+            name: (REPO_ROOT / "skills" / name / "SKILL.md").read_text(
+                encoding="utf-8"
+            )
+            for name in [
+                "subagent-driven-development",
+                "dispatching-parallel-agents",
+                "requesting-code-review",
+            ]
+        }
+
+    def test_dispatching_skills_define_active_variant_mode(self):
+        for name, text in self.read_skills().items():
+            with self.subTest(skill=name):
+                self.assertRegex(
+                    text,
+                    r"complete Superpowers\s+native-role set is exposed",
+                    "skill must define the active managed native-role mode",
+                )
+
+    def test_dispatching_skills_stop_on_unavailable_role_in_active_variant(self):
+        for name, text in self.read_skills().items():
+            with self.subTest(skill=name):
+                self.assertIn(
+                    "unavailable",
+                    text,
+                    "skill must stop on an unavailable role, model, or effort "
+                    "while the native-role variant is active",
+                )
+                self.assertNotRegex(
+                    text.lower(),
+                    r"unavailable[^\n]*(fall back|inherit|substitute|proceed)",
+                    "active-variant unavailability must never silently continue",
+                )
+
+    def test_dispatching_skills_preserve_standard_package_mode(self):
+        for name, text in self.read_skills().items():
+            with self.subTest(skill=name):
+                self.assertRegex(
+                    text,
+                    r"native roles are exposed\s+at all",
+                    "skill must define the standard-package mode where no "
+                    "native roles are exposed",
+                )
+                self.assertIn(
+                    "generic",
+                    text,
+                    "standard-package mode must keep the platform-neutral "
+                    "generic dispatch behavior",
+                )
+
+    def test_guide_documents_all_three_operating_modes(self):
+        guide = (
+            REPO_ROOT / "docs" / "superpowers" / "codex-ai-roles.md"
+        ).read_text(encoding="utf-8")
+        self.assertRegex(guide, r"complete Superpowers\s+native-role set is exposed")
+        self.assertRegex(guide, r"native roles are exposed\s+at all")
+        self.assertIn("standard packaged plugin", guide)
 
 
 if __name__ == "__main__":

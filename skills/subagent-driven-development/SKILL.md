@@ -64,16 +64,16 @@ digraph process {
 
     subgraph cluster_per_task {
         label="Per Task";
-        "Select and dispatch applicable implementation role (superpowers-implementer-mechanical, superpowers-implementer, or superpowers-implementer-complex) (./implementer-prompt.md)" [shape=box];
+        "Select and dispatch applicable implementation role (native variant: superpowers-implementer-mechanical, superpowers-implementer, or superpowers-implementer-complex; standard package: generic tier) (./implementer-prompt.md)" [shape=box];
         "Implementer asks questions?" [shape=diamond];
         "Answer questions, provide context" [shape=box];
         "Implementer implements, tests, commits, self-reviews" [shape=box];
-        "Generate review package, dispatch superpowers-task-reviewer (./task-reviewer-prompt.md)" [shape=box];
+        "Generate review package, dispatch task reviewer (superpowers-task-reviewer or generic) (./task-reviewer-prompt.md)" [shape=box];
         "Spec ✅ and quality approved?" [shape=diamond];
         "Finding conflicts with plan text?" [shape=diamond];
         "Rule on the conflict, ledger the ruling" [shape=box];
-        "Fix round R of 5: R≤3 resume implementer; R≥4 fresh superpowers-recovery" [shape=box];
-        "Dispatch superpowers-re-reviewer (./re-review-prompt.md)" [shape=box];
+        "Fix round R of 5: R≤3 resume implementer; R≥4 fresh recovery (superpowers-recovery or generic higher tier)" [shape=box];
+        "Dispatch scoped re-reviewer (superpowers-re-reviewer or generic) (./re-review-prompt.md)" [shape=box];
         "All findings addressed?" [shape=diamond];
         "R = 5?" [shape=diamond];
         "Adjudicate each open finding" [shape=box];
@@ -85,38 +85,38 @@ digraph process {
 
     "Setup: worktree, ledger check, read plan, pre-flight review" [shape=box];
     "More tasks remain?" [shape=diamond];
-    "Dispatch superpowers-final-reviewer (../requesting-code-review/code-reviewer.md)" [shape=box];
-    "Final findings? ONE superpowers-recovery dispatch, one superpowers-re-reviewer, adjudicate residuals" [shape=box];
+    "Dispatch final reviewer (superpowers-final-reviewer or generic most capable) (../requesting-code-review/code-reviewer.md)" [shape=box];
+    "Final findings? ONE recovery dispatch, one scoped re-review, adjudicate residuals" [shape=box];
     "Final review clean: delete this plan's workspace" [shape=box];
     "Use superpowers:finishing-a-development-branch" [shape=box style=filled fillcolor=lightgreen];
 
-    "Setup: worktree, ledger check, read plan, pre-flight review" -> "Select and dispatch applicable implementation role (superpowers-implementer-mechanical, superpowers-implementer, or superpowers-implementer-complex) (./implementer-prompt.md)";
-    "Select and dispatch applicable implementation role (superpowers-implementer-mechanical, superpowers-implementer, or superpowers-implementer-complex) (./implementer-prompt.md)" -> "Implementer asks questions?";
+    "Setup: worktree, ledger check, read plan, pre-flight review" -> "Select and dispatch applicable implementation role (native variant: superpowers-implementer-mechanical, superpowers-implementer, or superpowers-implementer-complex; standard package: generic tier) (./implementer-prompt.md)";
+    "Select and dispatch applicable implementation role (native variant: superpowers-implementer-mechanical, superpowers-implementer, or superpowers-implementer-complex; standard package: generic tier) (./implementer-prompt.md)" -> "Implementer asks questions?";
     "Implementer asks questions?" -> "Answer questions, provide context" [label="yes"];
     "Answer questions, provide context" -> "Implementer implements, tests, commits, self-reviews";
     "Implementer asks questions?" -> "Implementer implements, tests, commits, self-reviews" [label="no"];
-    "Implementer implements, tests, commits, self-reviews" -> "Generate review package, dispatch superpowers-task-reviewer (./task-reviewer-prompt.md)";
-    "Generate review package, dispatch superpowers-task-reviewer (./task-reviewer-prompt.md)" -> "Spec ✅ and quality approved?";
+    "Implementer implements, tests, commits, self-reviews" -> "Generate review package, dispatch task reviewer (superpowers-task-reviewer or generic) (./task-reviewer-prompt.md)";
+    "Generate review package, dispatch task reviewer (superpowers-task-reviewer or generic) (./task-reviewer-prompt.md)" -> "Spec ✅ and quality approved?";
     "Spec ✅ and quality approved?" -> "Append completion to ledger, mark todo complete" [label="yes"];
     "Spec ✅ and quality approved?" -> "Finding conflicts with plan text?" [label="no"];
     "Finding conflicts with plan text?" -> "Rule on the conflict, ledger the ruling" [label="yes"];
-    "Rule on the conflict, ledger the ruling" -> "Fix round R of 5: R≤3 resume implementer; R≥4 fresh superpowers-recovery";
-    "Finding conflicts with plan text?" -> "Fix round R of 5: R≤3 resume implementer; R≥4 fresh superpowers-recovery" [label="no"];
-    "Fix round R of 5: R≤3 resume implementer; R≥4 fresh superpowers-recovery" -> "Dispatch superpowers-re-reviewer (./re-review-prompt.md)";
-    "Dispatch superpowers-re-reviewer (./re-review-prompt.md)" -> "All findings addressed?";
+    "Rule on the conflict, ledger the ruling" -> "Fix round R of 5: R≤3 resume implementer; R≥4 fresh recovery (superpowers-recovery or generic higher tier)";
+    "Finding conflicts with plan text?" -> "Fix round R of 5: R≤3 resume implementer; R≥4 fresh recovery (superpowers-recovery or generic higher tier)" [label="no"];
+    "Fix round R of 5: R≤3 resume implementer; R≥4 fresh recovery (superpowers-recovery or generic higher tier)" -> "Dispatch scoped re-reviewer (superpowers-re-reviewer or generic) (./re-review-prompt.md)";
+    "Dispatch scoped re-reviewer (superpowers-re-reviewer or generic) (./re-review-prompt.md)" -> "All findings addressed?";
     "All findings addressed?" -> "Append completion to ledger, mark todo complete" [label="yes"];
     "All findings addressed?" -> "R = 5?" [label="no"];
-    "R = 5?" -> "Fix round R of 5: R≤3 resume implementer; R≥4 fresh superpowers-recovery" [label="no - next round"];
+    "R = 5?" -> "Fix round R of 5: R≤3 resume implementer; R≥4 fresh recovery (superpowers-recovery or generic higher tier)" [label="no - next round"];
     "R = 5?" -> "Adjudicate each open finding" [label="yes - breaker trips"];
     "Adjudicate each open finding" -> "Any load-bearing finding?";
     "Any load-bearing finding?" -> "Rule and continue; stop only if every path forward is a guess" [label="yes"];
     "Any load-bearing finding?" -> "Park findings in ledger with rulings" [label="no"];
     "Park findings in ledger with rulings" -> "Append completion to ledger, mark todo complete";
     "Append completion to ledger, mark todo complete" -> "More tasks remain?";
-    "More tasks remain?" -> "Select and dispatch applicable implementation role (superpowers-implementer-mechanical, superpowers-implementer, or superpowers-implementer-complex) (./implementer-prompt.md)" [label="yes"];
-    "More tasks remain?" -> "Dispatch superpowers-final-reviewer (../requesting-code-review/code-reviewer.md)" [label="no"];
-    "Dispatch superpowers-final-reviewer (../requesting-code-review/code-reviewer.md)" -> "Final findings? ONE superpowers-recovery dispatch, one superpowers-re-reviewer, adjudicate residuals";
-    "Final findings? ONE superpowers-recovery dispatch, one superpowers-re-reviewer, adjudicate residuals" -> "Final review clean: delete this plan's workspace";
+    "More tasks remain?" -> "Select and dispatch applicable implementation role (native variant: superpowers-implementer-mechanical, superpowers-implementer, or superpowers-implementer-complex; standard package: generic tier) (./implementer-prompt.md)" [label="yes"];
+    "More tasks remain?" -> "Dispatch final reviewer (superpowers-final-reviewer or generic most capable) (../requesting-code-review/code-reviewer.md)" [label="no"];
+    "Dispatch final reviewer (superpowers-final-reviewer or generic most capable) (../requesting-code-review/code-reviewer.md)" -> "Final findings? ONE recovery dispatch, one scoped re-review, adjudicate residuals";
+    "Final findings? ONE recovery dispatch, one scoped re-review, adjudicate residuals" -> "Final review clean: delete this plan's workspace";
     "Final review clean: delete this plan's workspace" -> "Use superpowers:finishing-a-development-branch";
 }
 ```
@@ -217,8 +217,29 @@ that implementer. Single-file mechanical fixes also take the cheapest tier.
 
 ### Codex native role routing
 
-When the harness exposes the Superpowers Codex roles, specify the role on
-every spawn:
+This routing has three operating modes, in this precedence order:
+
+1. **Managed native-role variant active.** The complete Superpowers
+   native-role set is exposed — Codex discovers it through the managed
+   `~/.codex/agents/superpowers` link created by this checkout's
+   `scripts/install-codex-variant.sh`. Every dispatch boundary below names
+   its role.
+2. **Variant active but unavailable.** The variant is active, yet Codex
+   reports a required role, its configured model, or its reasoning effort
+   unavailable: STOP that dispatch. Report the requested role, configured
+   model and effort, the availability error, and the corrective action or
+   user-selected alternative. Never silently inherit the parent model or
+   substitute another role.
+3. **Standard packaged plugin.** No Superpowers native roles are exposed
+   at all — for example after installing the standard packaged plugin,
+   which contains no role definitions. Keep the generic platform-neutral
+   dispatch and model-tier guidance in Model Selection above. This is the
+   non-variant operating mode, not a fallback from a failed role: mode 2's
+   stop rule applies only while the variant is active, and a failed role
+   dispatch in mode 1 never silently drops into mode 3.
+
+When the complete Superpowers native-role set is exposed, specify the role
+on every spawn:
 
 - complete, low-ambiguity work in 1-2 files:
   `superpowers-implementer-mechanical`
@@ -271,10 +292,13 @@ child is noticed within minutes, not at the end of the session.
 Record BASE (`git rev-parse HEAD`) before dispatching — the review package
 and fix-round diffs need it.
 
-- Select and dispatch an applicable implementation role:
+- Select and dispatch an applicable implementation role: when the complete
+  Superpowers native-role set is exposed, that is one of
   `superpowers-implementer-mechanical`, `superpowers-implementer`, or
-  `superpowers-implementer-complex`, using the Codex native role routing
-  above.
+  `superpowers-implementer-complex`, selected with the Codex native role
+  routing above; when no native roles are exposed at all, dispatch a
+  generic implementation subagent on the model tier the Model Selection
+  signals indicate.
 - **Task brief:** before dispatching an implementer, run this skill's
   `scripts/task-brief PLAN_FILE N` — it extracts the task's full text to a
   uniquely named file and prints the path. Compose the dispatch so the
@@ -314,7 +338,7 @@ Template: [implementer-prompt.md](implementer-prompt.md)
 
 Implementer subagents report one of four statuses. Handle each appropriately:
 
-**DONE:** Generate the review package (`scripts/review-package PLAN_FILE BASE HEAD`, from this skill's directory — it prints the unique file path it wrote; BASE is the commit you recorded before dispatching the implementer — never `HEAD~1`, which silently drops all but the last commit of a multi-commit task), then dispatch `superpowers-task-reviewer` with the printed path.
+**DONE:** Generate the review package (`scripts/review-package PLAN_FILE BASE HEAD`, from this skill's directory — it prints the unique file path it wrote; BASE is the commit you recorded before dispatching the implementer — never `HEAD~1`, which silently drops all but the last commit of a multi-commit task), then dispatch the task reviewer — `superpowers-task-reviewer` when the native-role variant is active, otherwise a generic reviewer on the review-appropriate model tier — with the printed path.
 
 **DONE_WITH_CONCERNS:** The implementer completed the work but flagged doubts. Read the concerns before proceeding. If the concerns are about correctness or scope, address them before review. If they're observations (e.g., "this file is getting large"), note them and proceed to review.
 
@@ -405,7 +429,10 @@ choices. If your harness cannot send another message to a live subagent,
 dispatch a fresh implementer carrying the brief path, the report-file path,
 and the findings — the report file is the persistent memory either way.
 
-**Rounds 4-5 — dispatch a fresh `superpowers-recovery` agent** with the brief
+**Rounds 4-5 — dispatch a fresh recovery agent:** `superpowers-recovery`
+when the native-role variant is active, otherwise a fresh implementer on a
+model at least one tier above the implementer that got stuck (per Model
+Selection). Give it the brief
 path, the report-file path, the open
 findings, and this framing: "A prior implementer attempted this task
 [N] times; you own it now. Read the report file for what was tried." A loop
@@ -421,8 +448,10 @@ covering test files in the fix message — a one-line fix does not need the
 whole suite.
 
 **The re-review is scoped.** Run `scripts/review-package PLAN_FILE FIX_BASE HEAD`
-where FIX_BASE is the head the previous review saw, and dispatch
-`superpowers-re-reviewer` with [re-review-prompt.md](re-review-prompt.md), the findings list, the
+where FIX_BASE is the head the previous review saw, and dispatch the scoped
+re-reviewer — `superpowers-re-reviewer` when the native-role variant is
+active, otherwise a generic reviewer on a cheap-to-mid tier — with
+[re-review-prompt.md](re-review-prompt.md), the findings list, the
 brief, the report file, and the printed diff path. The re-reviewer verdicts
 each finding ADDRESSED or NOT ADDRESSED and flags new breakage in the fix
 diff only. New Critical/Important breakage in the fix diff joins the open
@@ -474,20 +503,25 @@ parked-with-ruling at the cap.
 The final whole-branch review gets a package too: run
 `scripts/review-package PLAN_FILE MERGE_BASE HEAD` (MERGE_BASE = the commit the
 branch started from, e.g. `git merge-base main HEAD`) and include the
-printed path in the `superpowers-final-reviewer` dispatch, so the final reviewer reads
-one file instead of re-deriving the branch diff with git commands. Dispatch
-on the most capable available model (see Model Selection), using
+printed path in the final review dispatch — `superpowers-final-reviewer`
+when the native-role variant is active, otherwise a generic reviewer on the
+most capable available model (see Model Selection) — so the final reviewer
+reads
+one file instead of re-deriving the branch diff with git commands. Use
 superpowers:requesting-code-review's
 [code-reviewer.md](../requesting-code-review/code-reviewer.md). Point it at
 the ledger's deferred-minor and parked lines so it can triage which must be
 fixed before merge.
 
-If the final whole-branch review returns findings, dispatch ONE
-`superpowers-recovery` fix subagent
+If the final whole-branch review returns findings, dispatch ONE fix
+subagent — `superpowers-recovery` when the native-role variant is active,
+otherwise a generic fresh-perspective implementer on a higher model tier —
 with the complete findings list — not one fixer per finding.
 Per-finding fixers each rebuild context and re-run suites; a real
 session's final-review fix wave cost more than all its tasks combined.
-Then run exactly one `superpowers-re-reviewer` scoped re-review of the fix wave
+Then run exactly one scoped re-review of the fix wave —
+`superpowers-re-reviewer` when the native-role variant is active, otherwise
+a generic reviewer on a cheap-to-mid tier —
 (`scripts/review-package PLAN_FILE FIX_BASE HEAD` over the fix range,
 [re-review-prompt.md](re-review-prompt.md)).
 Adjudicate any residual findings as in the task loop's breaker: park with

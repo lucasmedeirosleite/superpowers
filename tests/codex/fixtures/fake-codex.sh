@@ -3,6 +3,20 @@ set -euo pipefail
 
 STATE="${SUPERPOWERS_FAKE_CODEX_STATE:?}"
 
+# Optional injected failure: SUPERPOWERS_FAKE_FAIL_ON names a fake Codex
+# command-line prefix. The first invocation matching it appends to
+# injected-failures.log and exits 1 without mutating fake state; later
+# invocations succeed. This simulates a crash between two installer
+# mutations.
+if [[ -n "${SUPERPOWERS_FAKE_FAIL_ON:-}" && "$*" == "$SUPERPOWERS_FAKE_FAIL_ON" ]]; then
+  if [[ ! -e "$STATE/injected-failures.log" ]] ||
+    ! grep -qxF "$*" "$STATE/injected-failures.log"; then
+    printf '%s\n' "$*" >>"$STATE/injected-failures.log"
+    printf 'injected failure: %s\n' "$*" >&2
+    exit 1
+  fi
+fi
+
 case "$*" in
   "--version")
     cat "$STATE/version"

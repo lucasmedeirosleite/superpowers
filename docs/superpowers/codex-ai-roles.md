@@ -4,6 +4,33 @@ This personal Superpowers variant separates primary-thread model
 recommendations from enforceable native subagent roles. Native roles apply
 only when Codex spawns a subagent.
 
+## Operating Modes
+
+The dispatching skills apply these modes in this precedence order:
+
+1. **Managed native-role variant active.** The complete Superpowers
+   native-role set is exposed — Codex discovers it through the managed
+   `~/.codex/agents/superpowers` link created by this checkout's
+   `scripts/install-codex-variant.sh`. Every applicable dispatch boundary
+   uses the named `superpowers-*` role below.
+2. **Variant active but unavailable.** The variant is active, yet Codex
+   reports a required role, configured model, or reasoning effort
+   unavailable. Stop that dispatch and report the role, configured model
+   and effort, availability error, and corrective action or explicit
+   user-selected alternative. Never silently inherit the parent model or
+   substitute another role.
+3. **Standard packaged plugin.** No Superpowers native roles are exposed
+   at all — a standard packaged plugin installation contains no role
+   definitions. Keep the existing platform-neutral generic dispatch and
+   model-tier behavior. This is the non-variant operating mode, not a
+   fallback from a failed active role: mode 2's stop rule applies only
+   while the variant is active, and a failed role dispatch in mode 1 never
+   silently drops into mode 3.
+
+The standard packaged plugin remains fully usable: every Superpowers
+workflow works in mode 3 with generic dispatch. Native roles add enforced
+model and reasoning selection for the managed variant only.
+
 ## Primary Lifecycle
 
 | Phase | Workflow | Model | Reasoning |
@@ -52,10 +79,10 @@ thread, so it is a recommendation rather than a native role.
 11. The single final-review fix wave uses `superpowers-recovery`, followed by
     `superpowers-re-reviewer`.
 
-If a requested role, model, or reasoning level is unavailable, stop and
-report the role, configured model and effort, availability error, and
-corrective action or explicit user-selected alternative. Never silently
-inherit the parent model or substitute another role.
+These routing rules bind in mode 1, when the complete Superpowers
+native-role set is exposed. In mode 2 (variant active but unavailable),
+stop as described above. In mode 3 (no roles exposed at all), dispatch
+generically with an explicit model tier instead.
 
 ## Install This Checkout
 

@@ -34,6 +34,7 @@ prompt_file="$WORK_DIR/prompt.txt"
     "Read only the named SKILL.md files in this checkout when deciding." \
     "For each supplied scenario, choose the native Codex role instructed by the skill." \
     "If the scenario says that required role is unavailable, action must be stop." \
+    "If the scenario says no native Superpowers roles are exposed at all, follow the skill's generic platform-neutral dispatch and set role to none with action dispatch." \
     "Return only the output-schema JSON."
   cat "$WORK_DIR/scenarios.json"
 } >"$prompt_file"
