@@ -54,8 +54,14 @@ try:
     installed = data.get("installed", [])
     if not isinstance(installed, list):
         raise ValueError("expected an object with an installed list")
-    if not all(isinstance(item, dict) for item in installed):
-        raise ValueError("installed entries must be objects")
+    for item in installed:
+        if not isinstance(item, dict):
+            raise ValueError("installed entries must be objects")
+        for field in ("pluginId", "name"):
+            if not isinstance(item.get(field), str) or not item[field].strip():
+                raise ValueError(f"installed entry has invalid {field}")
+        if "installed" in item and not isinstance(item["installed"], bool):
+            raise ValueError("installed entry has invalid installed")
 except (OSError, ValueError, json.JSONDecodeError) as error:
     print(f"invalid Codex plugin list JSON: {error}", file=sys.stderr)
     raise SystemExit(1)

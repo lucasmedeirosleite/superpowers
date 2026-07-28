@@ -134,6 +134,12 @@ run_capture "$INSTALLER"
   fail "malformed plugin list mutated state"
 
 fresh_case
+printf '{"installed":[{"name":"superpowers","installed":true}]}\n' >"$FAKE_STATE/plugins.json"
+run_capture "$INSTALLER"
+[[ "$STATUS" -ne 0 && ! -s "$FAKE_STATE/commands.log" ]] ||
+  fail "incomplete plugin list mutated state"
+
+fresh_case
 seed_marketplace "/different/checkout"
 run_capture "$INSTALLER"
 [[ "$STATUS" -ne 0 && ! -s "$FAKE_STATE/commands.log" ]] ||
