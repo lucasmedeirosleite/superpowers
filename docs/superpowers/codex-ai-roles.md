@@ -56,3 +56,52 @@ If a requested role, model, or reasoning level is unavailable, stop and
 report the role, configured model and effort, availability error, and
 corrective action or explicit user-selected alternative. Never silently
 inherit the parent model or substitute another role.
+
+## Install This Checkout
+
+Run:
+
+```bash
+scripts/install-codex-variant.sh
+```
+
+The installer first checks Codex 0.145.0+, the four required model IDs and
+their reasoning efforts, existing Superpowers plugins, the `superpowers-dev`
+marketplace, and the agents target. It exits before mutation on any conflict.
+
+Codex's plugin installation loads the Superpowers skills. The managed
+`~/.codex/agents/superpowers` link separately exposes the native roles.
+Start a new Codex session after installation.
+
+## Existing Official Plugin
+
+The installer never removes an existing official Superpowers plugin. If it
+reports one, stop and obtain explicit user approval before running:
+
+```bash
+codex plugin remove superpowers@openai-curated
+```
+
+Then rerun the installer.
+
+## Uninstall This Variant
+
+Run:
+
+```bash
+scripts/uninstall-codex-variant.sh
+```
+
+The uninstaller removes only resources recorded as owned by this checkout.
+It does not reinstall the official plugin.
+
+## Troubleshooting
+
+| Diagnostic | Resolution |
+|---|---|
+| Codex 0.145.0 or newer is required | Upgrade Codex, then rerun the installer. |
+| `kimi-oauth/k3` is unavailable | Configure the Kimi OAuth model provider so `codex debug models` lists `kimi-oauth/k3`. |
+| A model does not support the configured reasoning effort | Update the local model catalog/provider configuration; do not lower or substitute a role silently. |
+| `superpowers-dev` belongs to another checkout | Remove that marketplace only after confirming its owner, or use that checkout instead. |
+| The agents target is not owned by this checkout | Inspect `~/.codex/agents/superpowers`; move or remove it yourself only after confirming its owner. |
+| A role is missing in Codex after install | Confirm the managed link, then start a completely new Codex session because roles are discovered at session start. |

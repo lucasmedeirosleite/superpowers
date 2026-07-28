@@ -117,6 +117,13 @@ Superpowers is available via the [official Codex plugin marketplace](https://git
 
 - Select `Install Plugin`.
 
+### Personal Codex AI-role variant
+
+This branch includes optional native Codex roles with explicit GPT-5.6 and
+Kimi K3 assignments. See
+[Codex AI Roles](docs/superpowers/codex-ai-roles.md) for the lifecycle matrix,
+managed-link installation, and uninstall behavior.
+
 ### Cursor
 
 - In Cursor Agent chat, install from marketplace:
