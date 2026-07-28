@@ -29,9 +29,15 @@ BASE_SHA=$(git rev-parse HEAD~1)  # or origin/main
 HEAD_SHA=$(git rev-parse HEAD)
 ```
 
-**2. Dispatch code reviewer subagent:**
+**2. Choose and dispatch the reviewer:**
 
-Dispatch a `general-purpose` subagent, filling the template at [code-reviewer.md](code-reviewer.md)
+- one completed plan task: `superpowers-task-reviewer`
+- a fix-only diff with known findings: `superpowers-re-reviewer`
+- a major feature or whole branch before merge: `superpowers-final-reviewer`
+
+Fill the template at [code-reviewer.md](code-reviewer.md). If the selected
+role is unavailable, stop and report its configured model and effort instead
+of dispatching an untyped reviewer.
 
 **Placeholders:**
 - `{DESCRIPTION}` - Brief summary of what you built

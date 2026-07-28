@@ -68,13 +68,27 @@ Each agent gets:
 Issue all three subagent dispatches in the same response — they run in parallel:
 
 ```text
-Subagent (general-purpose): "Fix agent-tool-abort.test.ts failures"
-Subagent (general-purpose): "Fix batch-completion-behavior.test.ts failures"
-Subagent (general-purpose): "Fix tool-approval-race-conditions.test.ts failures"
+Subagent (superpowers-implementer-mechanical): "Fix agent-tool-abort.test.ts failures"
+Subagent (superpowers-implementer-mechanical): "Fix batch-completion-behavior.test.ts failures"
+Subagent (superpowers-implementer-mechanical): "Fix tool-approval-race-conditions.test.ts failures"
 # All three run concurrently.
 ```
 
 Multiple dispatch calls in one response = parallel execution. One per response = sequential.
+
+### Codex native role routing
+
+Choose by the delegated outcome:
+
+- narrow read-only lookup: `superpowers-explorer`
+- root-cause analysis or broad independent investigation:
+  `superpowers-investigator`
+- bounded code change: select `superpowers-implementer-mechanical`,
+  `superpowers-implementer`, or `superpowers-implementer-complex` using the
+  same complexity signals as subagent-driven-development
+
+All parallel calls must name their role. If a required role is unavailable,
+stop that dispatch and report the missing role; do not fall back silently.
 
 ### 4. Review and Integrate
 

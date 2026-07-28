@@ -98,11 +98,38 @@ def validate_catalog(roles, catalog):
     return errors
 
 
+def validate_references(roles, guide_path, skills_root):
+    errors = []
+    guide = Path(guide_path).read_text(encoding="utf-8")
+    skill_names = [
+        "subagent-driven-development",
+        "dispatching-parallel-agents",
+        "requesting-code-review",
+    ]
+    skill_text = "\n".join(
+        (Path(skills_root) / name / "SKILL.md").read_text(encoding="utf-8")
+        for name in skill_names
+    )
+    for role_name, role in sorted(roles.items()):
+        row = f"| `{role_name}` | `{role['model']}` | `{role['model_reasoning_effort']}` |"
+        if row not in guide:
+            errors.append(f"{role_name}: guide matrix does not match role TOML")
+        if role_name not in skill_text:
+            errors.append(f"{role_name}: no dispatching skill references role")
+    if "Never silently inherit" not in skill_text:
+        errors.append("dispatching skills do not prohibit silent fallback")
+    return errors
+
+
 def parse_args():
     repo_root = Path(__file__).resolve().parents[1]
     parser = argparse.ArgumentParser()
     parser.add_argument("--roles-dir", type=Path, default=repo_root / "agents")
     parser.add_argument("--catalog", type=Path)
+    parser.add_argument(
+        "--guide", type=Path, default=repo_root / "docs" / "superpowers" / "codex-ai-roles.md"
+    )
+    parser.add_argument("--skills-root", type=Path, default=repo_root / "skills")
     return parser.parse_args()
 
 
@@ -110,6 +137,7 @@ def main():
     args = parse_args()
     roles = load_roles(args.roles_dir)
     errors = validate_roles(roles)
+    errors.extend(validate_references(roles, args.guide, args.skills_root))
     if args.catalog:
         with args.catalog.open(encoding="utf-8") as handle:
             errors.extend(validate_catalog(roles, json.load(handle)))

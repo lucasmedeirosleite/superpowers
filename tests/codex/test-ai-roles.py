@@ -21,6 +21,30 @@ class CodexAIRolesTest(unittest.TestCase):
     def setUp(self):
         self.validator = load_validator()
 
+    def write_reference_artifacts(self, directory, roles, skill_roles=None):
+        guide = directory / "guide.md"
+        guide.write_text(
+            "\n".join(
+                f"| `{name}` | `{role['model']}` | "
+                f"`{role['model_reasoning_effort']}` |"
+                for name, role in sorted(roles.items())
+            ),
+            encoding="utf-8",
+        )
+        skill_roles = roles if skill_roles is None else skill_roles
+        for name in [
+            "subagent-driven-development",
+            "dispatching-parallel-agents",
+            "requesting-code-review",
+        ]:
+            path = directory / "skills" / name
+            path.mkdir(parents=True)
+            (path / "SKILL.md").write_text(
+                "\n".join(skill_roles) + "\nNever silently inherit\n",
+                encoding="utf-8",
+            )
+        return guide, directory / "skills"
+
     def test_repository_roles_match_approved_matrix(self):
         roles = self.validator.load_roles(REPO_ROOT / "agents")
         self.assertEqual([], self.validator.validate_roles(roles))
@@ -77,6 +101,56 @@ class CodexAIRolesTest(unittest.TestCase):
         self.assertEqual(
             ["superpowers-investigator: kimi-oauth/k3 does not support reasoning max"],
             errors,
+        )
+
+    def test_references_reject_mismatched_guide_row(self):
+        roles = {
+            name: self.validator.expected_role(name)
+            for name in self.validator.EXPECTED
+        }
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            directory = Path(temporary_directory)
+            guide, skills_root = self.write_reference_artifacts(directory, roles)
+            guide.write_text(
+                guide.read_text(encoding="utf-8").replace(
+                    "`gpt-5.6-luna`", "`wrong-model`", 1
+                ),
+                encoding="utf-8",
+            )
+            self.assertIn(
+                "superpowers-explorer: guide matrix does not match role TOML",
+                self.validator.validate_references(roles, guide, skills_root),
+            )
+
+    def test_references_reject_missing_skill_reference(self):
+        roles = {
+            name: self.validator.expected_role(name)
+            for name in self.validator.EXPECTED
+        }
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            guide, skills_root = self.write_reference_artifacts(
+                Path(temporary_directory),
+                roles,
+                {
+                    name: role
+                    for name, role in roles.items()
+                    if name != "superpowers-recovery"
+                },
+            )
+            self.assertIn(
+                "superpowers-recovery: no dispatching skill references role",
+                self.validator.validate_references(roles, guide, skills_root),
+            )
+
+    def test_repository_references_match_roles(self):
+        roles = self.validator.load_roles(REPO_ROOT / "agents")
+        self.assertEqual(
+            [],
+            self.validator.validate_references(
+                roles,
+                REPO_ROOT / "docs" / "superpowers" / "codex-ai-roles.md",
+                REPO_ROOT / "skills",
+            ),
         )
 
 

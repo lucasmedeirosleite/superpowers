@@ -68,12 +68,12 @@ digraph process {
         "Implementer asks questions?" [shape=diamond];
         "Answer questions, provide context" [shape=box];
         "Implementer implements, tests, commits, self-reviews" [shape=box];
-        "Generate review package, dispatch task reviewer (./task-reviewer-prompt.md)" [shape=box];
+        "Generate review package, dispatch superpowers-task-reviewer (./task-reviewer-prompt.md)" [shape=box];
         "Spec ✅ and quality approved?" [shape=diamond];
         "Finding conflicts with plan text?" [shape=diamond];
         "Rule on the conflict, ledger the ruling" [shape=box];
-        "Fix round R of 5: R≤3 resume implementer; R≥4 fresh implementer, more capable model" [shape=box];
-        "Dispatch scoped re-review (./re-review-prompt.md)" [shape=box];
+        "Fix round R of 5: R≤3 resume implementer; R≥4 fresh superpowers-recovery" [shape=box];
+        "Dispatch superpowers-re-reviewer (./re-review-prompt.md)" [shape=box];
         "All findings addressed?" [shape=diamond];
         "R = 5?" [shape=diamond];
         "Adjudicate each open finding" [shape=box];
@@ -85,8 +85,8 @@ digraph process {
 
     "Setup: worktree, ledger check, read plan, pre-flight review" [shape=box];
     "More tasks remain?" [shape=diamond];
-    "Dispatch final code reviewer (../requesting-code-review/code-reviewer.md)" [shape=box];
-    "Final findings? ONE fix dispatch, one scoped re-review, adjudicate residuals" [shape=box];
+    "Dispatch superpowers-final-reviewer (../requesting-code-review/code-reviewer.md)" [shape=box];
+    "Final findings? ONE superpowers-recovery dispatch, one superpowers-re-reviewer, adjudicate residuals" [shape=box];
     "Final review clean: delete this plan's workspace" [shape=box];
     "Use superpowers:finishing-a-development-branch" [shape=box style=filled fillcolor=lightgreen];
 
@@ -95,18 +95,18 @@ digraph process {
     "Implementer asks questions?" -> "Answer questions, provide context" [label="yes"];
     "Answer questions, provide context" -> "Implementer implements, tests, commits, self-reviews";
     "Implementer asks questions?" -> "Implementer implements, tests, commits, self-reviews" [label="no"];
-    "Implementer implements, tests, commits, self-reviews" -> "Generate review package, dispatch task reviewer (./task-reviewer-prompt.md)";
-    "Generate review package, dispatch task reviewer (./task-reviewer-prompt.md)" -> "Spec ✅ and quality approved?";
+    "Implementer implements, tests, commits, self-reviews" -> "Generate review package, dispatch superpowers-task-reviewer (./task-reviewer-prompt.md)";
+    "Generate review package, dispatch superpowers-task-reviewer (./task-reviewer-prompt.md)" -> "Spec ✅ and quality approved?";
     "Spec ✅ and quality approved?" -> "Append completion to ledger, mark todo complete" [label="yes"];
     "Spec ✅ and quality approved?" -> "Finding conflicts with plan text?" [label="no"];
     "Finding conflicts with plan text?" -> "Rule on the conflict, ledger the ruling" [label="yes"];
-    "Rule on the conflict, ledger the ruling" -> "Fix round R of 5: R≤3 resume implementer; R≥4 fresh implementer, more capable model";
-    "Finding conflicts with plan text?" -> "Fix round R of 5: R≤3 resume implementer; R≥4 fresh implementer, more capable model" [label="no"];
-    "Fix round R of 5: R≤3 resume implementer; R≥4 fresh implementer, more capable model" -> "Dispatch scoped re-review (./re-review-prompt.md)";
-    "Dispatch scoped re-review (./re-review-prompt.md)" -> "All findings addressed?";
+    "Rule on the conflict, ledger the ruling" -> "Fix round R of 5: R≤3 resume implementer; R≥4 fresh superpowers-recovery";
+    "Finding conflicts with plan text?" -> "Fix round R of 5: R≤3 resume implementer; R≥4 fresh superpowers-recovery" [label="no"];
+    "Fix round R of 5: R≤3 resume implementer; R≥4 fresh superpowers-recovery" -> "Dispatch superpowers-re-reviewer (./re-review-prompt.md)";
+    "Dispatch superpowers-re-reviewer (./re-review-prompt.md)" -> "All findings addressed?";
     "All findings addressed?" -> "Append completion to ledger, mark todo complete" [label="yes"];
     "All findings addressed?" -> "R = 5?" [label="no"];
-    "R = 5?" -> "Fix round R of 5: R≤3 resume implementer; R≥4 fresh implementer, more capable model" [label="no - next round"];
+    "R = 5?" -> "Fix round R of 5: R≤3 resume implementer; R≥4 fresh superpowers-recovery" [label="no - next round"];
     "R = 5?" -> "Adjudicate each open finding" [label="yes - breaker trips"];
     "Adjudicate each open finding" -> "Any load-bearing finding?";
     "Any load-bearing finding?" -> "Rule and continue; stop only if every path forward is a guess" [label="yes"];
@@ -114,9 +114,9 @@ digraph process {
     "Park findings in ledger with rulings" -> "Append completion to ledger, mark todo complete";
     "Append completion to ledger, mark todo complete" -> "More tasks remain?";
     "More tasks remain?" -> "Dispatch implementer subagent (./implementer-prompt.md)" [label="yes"];
-    "More tasks remain?" -> "Dispatch final code reviewer (../requesting-code-review/code-reviewer.md)" [label="no"];
-    "Dispatch final code reviewer (../requesting-code-review/code-reviewer.md)" -> "Final findings? ONE fix dispatch, one scoped re-review, adjudicate residuals";
-    "Final findings? ONE fix dispatch, one scoped re-review, adjudicate residuals" -> "Final review clean: delete this plan's workspace";
+    "More tasks remain?" -> "Dispatch superpowers-final-reviewer (../requesting-code-review/code-reviewer.md)" [label="no"];
+    "Dispatch superpowers-final-reviewer (../requesting-code-review/code-reviewer.md)" -> "Final findings? ONE superpowers-recovery dispatch, one superpowers-re-reviewer, adjudicate residuals";
+    "Final findings? ONE superpowers-recovery dispatch, one superpowers-re-reviewer, adjudicate residuals" -> "Final review clean: delete this plan's workspace";
     "Final review clean: delete this plan's workspace" -> "Use superpowers:finishing-a-development-branch";
 }
 ```
@@ -214,6 +214,32 @@ that implementer. Single-file mechanical fixes also take the cheapest tier.
 - Touches 1-2 files with a complete spec → cheap model
 - Touches multiple files with integration concerns → standard model
 - Requires design judgment or broad codebase understanding → most capable model
+
+### Codex native role routing
+
+When the harness exposes the Superpowers Codex roles, specify the role on
+every spawn:
+
+- complete, low-ambiguity work in 1-2 files:
+  `superpowers-implementer-mechanical`
+- normal multi-file implementation or integration:
+  `superpowers-implementer`
+- architectural, broad, or materially ambiguous implementation:
+  `superpowers-implementer-complex`
+- first task review: `superpowers-task-reviewer`
+- scoped fix re-review: `superpowers-re-reviewer`
+- fix rounds 4-5: a fresh `superpowers-recovery` agent for each round
+- whole-branch final review: `superpowers-final-reviewer`
+- one final-review fix wave: `superpowers-recovery`
+
+Rounds 1-3 resume the original implementation agent, preserving the role
+selected for that task. Selecting a native role satisfies the explicit-model
+requirement because the role fixes both model and reasoning effort.
+
+If a role or its configured model is unavailable, STOP that dispatch. Report
+the requested role, configured model and effort, the availability error, and
+the corrective action or user-selected alternative. Never silently inherit
+the parent model or substitute another role.
 
 ## The Task Loop
 
@@ -375,8 +401,8 @@ choices. If your harness cannot send another message to a live subagent,
 dispatch a fresh implementer carrying the brief path, the report-file path,
 and the findings — the report file is the persistent memory either way.
 
-**Rounds 4-5 — dispatch a fresh implementer on a more capable model** (per
-Model Selection), with the brief path, the report-file path, the open
+**Rounds 4-5 — dispatch a fresh `superpowers-recovery` agent** with the brief
+path, the report-file path, the open
 findings, and this framing: "A prior implementer attempted this task
 [N] times; you own it now. Read the report file for what was tried." A loop
 that survives three resumes usually means the implementer cannot see its
@@ -392,7 +418,7 @@ whole suite.
 
 **The re-review is scoped.** Run `scripts/review-package PLAN_FILE FIX_BASE HEAD`
 where FIX_BASE is the head the previous review saw, and dispatch
-[re-review-prompt.md](re-review-prompt.md) with the findings list, the
+`superpowers-re-reviewer` with [re-review-prompt.md](re-review-prompt.md), the findings list, the
 brief, the report file, and the printed diff path. The re-reviewer verdicts
 each finding ADDRESSED or NOT ADDRESSED and flags new breakage in the fix
 diff only. New Critical/Important breakage in the fix diff joins the open
@@ -444,7 +470,7 @@ parked-with-ruling at the cap.
 The final whole-branch review gets a package too: run
 `scripts/review-package PLAN_FILE MERGE_BASE HEAD` (MERGE_BASE = the commit the
 branch started from, e.g. `git merge-base main HEAD`) and include the
-printed path in the final review dispatch, so the final reviewer reads
+printed path in the `superpowers-final-reviewer` dispatch, so the final reviewer reads
 one file instead of re-deriving the branch diff with git commands. Dispatch
 on the most capable available model (see Model Selection), using
 superpowers:requesting-code-review's
@@ -452,11 +478,12 @@ superpowers:requesting-code-review's
 the ledger's deferred-minor and parked lines so it can triage which must be
 fixed before merge.
 
-If the final whole-branch review returns findings, dispatch ONE fix subagent
+If the final whole-branch review returns findings, dispatch ONE
+`superpowers-recovery` fix subagent
 with the complete findings list — not one fixer per finding.
 Per-finding fixers each rebuild context and re-run suites; a real
 session's final-review fix wave cost more than all its tasks combined.
-Then run exactly one scoped re-review of the fix wave
+Then run exactly one `superpowers-re-reviewer` scoped re-review of the fix wave
 (`scripts/review-package PLAN_FILE FIX_BASE HEAD` over the fix range,
 [re-review-prompt.md](re-review-prompt.md)).
 Adjudicate any residual findings as in the task loop's breaker: park with

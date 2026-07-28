@@ -1,0 +1,22 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["decisions"],
+  "properties": {
+    "decisions": {
+      "type": "array",
+      "minItems": 10,
+      "maxItems": 10,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "role", "action"],
+        "properties": {
+          "id": {"type": "string"},
+          "role": {"type": "string"},
+          "action": {"type": "string", "enum": ["dispatch", "stop"]}
+        }
+      }
+    }
+  }
+}

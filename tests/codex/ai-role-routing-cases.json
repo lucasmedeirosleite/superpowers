@@ -1,0 +1,12 @@
+[
+  {"id":"narrow-lookup","skill":"dispatching-parallel-agents","scenario":"Locate the one function that parses the SDD ledger. Read-only, no architectural analysis.","role":"superpowers-explorer","action":"dispatch"},
+  {"id":"root-cause","skill":"dispatching-parallel-agents","scenario":"Three independent clues point to a nondeterministic cache bug. Investigate competing root-cause hypotheses without editing.","role":"superpowers-investigator","action":"dispatch"},
+  {"id":"mechanical-implementation","skill":"subagent-driven-development","scenario":"The task gives complete code and tests for a one-file parser change.","role":"superpowers-implementer-mechanical","action":"dispatch"},
+  {"id":"normal-implementation","skill":"subagent-driven-development","scenario":"The task coordinates parsing, storage, and CLI output across four files using established interfaces.","role":"superpowers-implementer","action":"dispatch"},
+  {"id":"complex-implementation","skill":"subagent-driven-development","scenario":"The task changes an architectural boundary shared by multiple workflows and requires approved-design judgment.","role":"superpowers-implementer-complex","action":"dispatch"},
+  {"id":"task-review","skill":"subagent-driven-development","scenario":"The implementer finished one plan task and produced its brief, report, and review package.","role":"superpowers-task-reviewer","action":"dispatch"},
+  {"id":"scoped-re-review","skill":"subagent-driven-development","scenario":"Verify two known findings against only the latest fix diff.","role":"superpowers-re-reviewer","action":"dispatch"},
+  {"id":"round-four-recovery","skill":"subagent-driven-development","scenario":"The original implementer failed three reviewed fix rounds; begin fix round four with persisted evidence.","role":"superpowers-recovery","action":"dispatch"},
+  {"id":"final-review","skill":"requesting-code-review","scenario":"All plan tasks are complete; review the whole branch before finishing.","role":"superpowers-final-reviewer","action":"dispatch"},
+  {"id":"missing-role","skill":"subagent-driven-development","scenario":"A normal multi-file task needs superpowers-implementer, but Codex reports that configured role unavailable.","role":"superpowers-implementer","action":"stop"}
+]
