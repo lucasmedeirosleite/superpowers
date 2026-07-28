@@ -64,7 +64,7 @@ digraph process {
 
     subgraph cluster_per_task {
         label="Per Task";
-        "Dispatch implementer subagent (./implementer-prompt.md)" [shape=box];
+        "Select and dispatch applicable implementation role (superpowers-implementer-mechanical, superpowers-implementer, or superpowers-implementer-complex) (./implementer-prompt.md)" [shape=box];
         "Implementer asks questions?" [shape=diamond];
         "Answer questions, provide context" [shape=box];
         "Implementer implements, tests, commits, self-reviews" [shape=box];
@@ -90,8 +90,8 @@ digraph process {
     "Final review clean: delete this plan's workspace" [shape=box];
     "Use superpowers:finishing-a-development-branch" [shape=box style=filled fillcolor=lightgreen];
 
-    "Setup: worktree, ledger check, read plan, pre-flight review" -> "Dispatch implementer subagent (./implementer-prompt.md)";
-    "Dispatch implementer subagent (./implementer-prompt.md)" -> "Implementer asks questions?";
+    "Setup: worktree, ledger check, read plan, pre-flight review" -> "Select and dispatch applicable implementation role (superpowers-implementer-mechanical, superpowers-implementer, or superpowers-implementer-complex) (./implementer-prompt.md)";
+    "Select and dispatch applicable implementation role (superpowers-implementer-mechanical, superpowers-implementer, or superpowers-implementer-complex) (./implementer-prompt.md)" -> "Implementer asks questions?";
     "Implementer asks questions?" -> "Answer questions, provide context" [label="yes"];
     "Answer questions, provide context" -> "Implementer implements, tests, commits, self-reviews";
     "Implementer asks questions?" -> "Implementer implements, tests, commits, self-reviews" [label="no"];
@@ -113,7 +113,7 @@ digraph process {
     "Any load-bearing finding?" -> "Park findings in ledger with rulings" [label="no"];
     "Park findings in ledger with rulings" -> "Append completion to ledger, mark todo complete";
     "Append completion to ledger, mark todo complete" -> "More tasks remain?";
-    "More tasks remain?" -> "Dispatch implementer subagent (./implementer-prompt.md)" [label="yes"];
+    "More tasks remain?" -> "Select and dispatch applicable implementation role (superpowers-implementer-mechanical, superpowers-implementer, or superpowers-implementer-complex) (./implementer-prompt.md)" [label="yes"];
     "More tasks remain?" -> "Dispatch superpowers-final-reviewer (../requesting-code-review/code-reviewer.md)" [label="no"];
     "Dispatch superpowers-final-reviewer (../requesting-code-review/code-reviewer.md)" -> "Final findings? ONE superpowers-recovery dispatch, one superpowers-re-reviewer, adjudicate residuals";
     "Final findings? ONE superpowers-recovery dispatch, one superpowers-re-reviewer, adjudicate residuals" -> "Final review clean: delete this plan's workspace";
@@ -271,6 +271,10 @@ child is noticed within minutes, not at the end of the session.
 Record BASE (`git rev-parse HEAD`) before dispatching — the review package
 and fix-round diffs need it.
 
+- Select and dispatch an applicable implementation role:
+  `superpowers-implementer-mechanical`, `superpowers-implementer`, or
+  `superpowers-implementer-complex`, using the Codex native role routing
+  above.
 - **Task brief:** before dispatching an implementer, run this skill's
   `scripts/task-brief PLAN_FILE N` — it extracts the task's full text to a
   uniquely named file and prints the path. Compose the dispatch so the
@@ -310,7 +314,7 @@ Template: [implementer-prompt.md](implementer-prompt.md)
 
 Implementer subagents report one of four statuses. Handle each appropriately:
 
-**DONE:** Generate the review package (`scripts/review-package PLAN_FILE BASE HEAD`, from this skill's directory — it prints the unique file path it wrote; BASE is the commit you recorded before dispatching the implementer — never `HEAD~1`, which silently drops all but the last commit of a multi-commit task), then dispatch the task reviewer with the printed path.
+**DONE:** Generate the review package (`scripts/review-package PLAN_FILE BASE HEAD`, from this skill's directory — it prints the unique file path it wrote; BASE is the commit you recorded before dispatching the implementer — never `HEAD~1`, which silently drops all but the last commit of a multi-commit task), then dispatch `superpowers-task-reviewer` with the printed path.
 
 **DONE_WITH_CONCERNS:** The implementer completed the work but flagged doubts. Read the concerns before proceeding. If the concerns are about correctness or scope, address them before review. If they're observations (e.g., "this file is getting large"), note them and proceed to review.
 

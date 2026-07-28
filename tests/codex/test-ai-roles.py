@@ -153,6 +153,14 @@ class CodexAIRolesTest(unittest.TestCase):
             ),
         )
 
+    def test_subagent_driven_development_names_roles_at_dispatch_boundaries(self):
+        skill = (
+            REPO_ROOT / "skills" / "subagent-driven-development" / "SKILL.md"
+        ).read_text(encoding="utf-8")
+        self.assertIn("Select and dispatch an applicable implementation role", skill)
+        self.assertIn("dispatch `superpowers-task-reviewer`", skill)
+        self.assertNotIn("Dispatch implementer subagent", skill)
+
 
 if __name__ == "__main__":
     unittest.main()
