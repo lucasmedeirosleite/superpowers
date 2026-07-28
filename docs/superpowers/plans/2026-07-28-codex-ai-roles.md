@@ -48,7 +48,7 @@
 - Modify `skills/requesting-code-review/SKILL.md` — select task, scoped re-review, or final reviewer roles.
 - Create `tests/codex/ai-role-routing-cases.json` — representative routing scenarios and expected decisions.
 - Create `tests/codex/ai-role-routing-output.schema.json` — constrained eval response shape.
-- Create `tests/codex/run-ai-role-routing-eval.sh` — one-call baseline/post-change instruction eval.
+- Create `tests/codex/run-ai-role-routing-eval.sh` — five fresh-context baseline and post-change instruction-eval calls.
 
 ### Managed installation
 
@@ -463,8 +463,12 @@ SCHEMA="$SCRIPT_DIR/ai-role-routing-output.schema.json"
 CODEX_BIN="${SUPERPOWERS_CODEX_BIN:-codex}"
 EVAL_MODEL="${SUPERPOWERS_EVAL_MODEL:-gpt-5.6-luna}"
 MODE="${1:---post-change}"
+REPETITIONS="${SUPERPOWERS_EVAL_REPETITIONS:-5}"
 WORK_DIR="$(mktemp -d)"
 trap 'rm -rf "$WORK_DIR"' EXIT
+
+[[ "$REPETITIONS" =~ ^[1-9][0-9]*$ ]] ||
+  { printf 'SUPERPOWERS_EVAL_REPETITIONS must be a positive integer\n' >&2; exit 2; }
 
 python3 - "$CASES" "$WORK_DIR/scenarios.json" <<'PY'
 import json, sys
@@ -486,30 +490,49 @@ prompt_file="$WORK_DIR/prompt.txt"
   cat "$WORK_DIR/scenarios.json"
 } >"$prompt_file"
 
-"$CODEX_BIN" -a never exec --ephemeral --ignore-rules \
-  --sandbox read-only \
-  -C "$REPO_ROOT" -m "$EVAL_MODEL" \
-  -c 'model_reasoning_effort="medium"' \
-  --output-schema "$SCHEMA" \
-  --output-last-message "$WORK_DIR/result.json" \
-  - <"$prompt_file"
+for repetition in $(seq 1 "$REPETITIONS"); do
+  "$CODEX_BIN" -a never exec --ephemeral --ignore-rules \
+    --sandbox read-only \
+    -C "$REPO_ROOT" -m "$EVAL_MODEL" \
+    -c 'model_reasoning_effort="medium"' \
+    --output-schema "$SCHEMA" \
+    --output-last-message "$WORK_DIR/result-$repetition.json" \
+    - <"$prompt_file"
+done
 
-python3 - "$CASES" "$WORK_DIR/result.json" "$MODE" <<'PY'
+python3 - "$CASES" "$WORK_DIR" "$MODE" "$REPETITIONS" <<'PY'
 import json, sys
 expected = {c["id"]: (c["role"], c["action"]) for c in json.load(open(sys.argv[1]))}
-actual = {
-    d["id"]: (d["role"], d["action"])
-    for d in json.load(open(sys.argv[2]))["decisions"]
-}
-mismatches = {key: (expected[key], actual.get(key)) for key in expected if actual.get(key) != expected[key]}
-if sys.argv[3] == "--baseline":
-    if len(mismatches) < 5:
-        raise SystemExit(f"baseline unexpectedly encoded role routing; only {len(mismatches)} mismatches")
-    print(f"Baseline captured: {len(mismatches)} of {len(expected)} decisions differ")
-elif mismatches:
-    raise SystemExit("routing mismatches: " + json.dumps(mismatches, indent=2))
+work_dir, mode, repetitions = sys.argv[2], sys.argv[3], int(sys.argv[4])
+results = []
+for repetition in range(1, repetitions + 1):
+    payload = json.load(open(f"{work_dir}/result-{repetition}.json"))
+    actual = {d["id"]: (d["role"], d["action"]) for d in payload["decisions"]}
+    mismatches = {
+        key: {"expected": expected[key], "actual": actual.get(key)}
+        for key in expected if actual.get(key) != expected[key]
+    }
+    results.append(mismatches)
+if mode == "--baseline":
+    for index, mismatches in enumerate(results, start=1):
+        if len(mismatches) < 5:
+            raise SystemExit(
+                f"baseline repetition {index} unexpectedly encoded routing; "
+                f"only {len(mismatches)} mismatches"
+            )
+        print(f"Baseline repetition {index} mismatches:")
+        print(json.dumps(mismatches, indent=2))
+    print(
+        f"Baseline captured: {sum(map(len, results))} mismatches across "
+        f"{repetitions} fresh-context calls"
+    )
+elif any(results):
+    raise SystemExit("routing mismatches: " + json.dumps(results, indent=2))
 else:
-    print(f"Codex AI role routing valid: {len(expected)} decisions")
+    print(
+        f"Codex AI role routing valid: "
+        f"{len(expected) * repetitions} decisions across {repetitions} calls"
+    )
 PY
 ```
 
@@ -519,8 +542,10 @@ Run before changing the skills:
 bash tests/codex/run-ai-role-routing-eval.sh --baseline
 ```
 
-Expected: PASS with at least five mismatches, proving the current instructions
-do not already encode the new routing behavior.
+Expected: five fresh-context calls pass with at least five mismatches each.
+Read every printed mismatch before editing the skills; this proves the current
+instructions do not already encode the new routing behavior and records the
+baseline failure shapes.
 
 - [ ] **Step 3: Write the lifecycle and routing guide**
 
@@ -716,7 +741,7 @@ Expected:
 ```text
 OK
 Codex AI roles valid
-Codex AI role routing valid: 10 decisions
+Codex AI role routing valid: 50 decisions across 5 calls
 ```
 
 - [ ] **Step 7: Commit the routing behavior**
@@ -1552,8 +1577,9 @@ bash tests/shell-lint/test-lint-shell.sh
 git diff --check upstream/dev...HEAD
 ```
 
-Expected: every command exits `0`, the routing eval reports 10 valid
-decisions, and the working tree contains only the intended Task 4 changes.
+Expected: every command exits `0`, the routing eval reports 50 valid decisions
+across five fresh-context calls, and the working tree contains only the
+intended Task 4 changes.
 
 - [ ] **Step 5: Commit documentation and packaging checks**
 
