@@ -157,9 +157,9 @@ runtime access and exited 0.
 
 | Harness | Baseline or before | Fresh installed fork | Limit |
 | --- | --- | --- | --- |
-| Codex CLI 0.155.0-alpha.16.3 | Isolated baseline explicit `design-tokens` and availability checks passed; it had no fork. | `superpowers@superpowers-dev` is installed and enabled from this checkout. Explicit trace read cached fork `using-superpowers`, its routing reference, `brainstorming`, and installed `design-tokens`; it deferred writing. Automatic billing trace read cached fork bootstrap, `brainstorming`, and installed `create-prd`, asked one user question, and wrote no file. | The automatic trace did not separately read the routing reference. Both prompts added a no-write sentence; an unassisted gate was not tested in CLI. The explicit trace's repository-status check exited 128 because the temporary project was not a Git repository; skill reads still completed. The CLI remote catalog query failed, so its inventory alone cannot enumerate all remote entries; the desktop uninstall tool confirmed removal of the exact upstream identity. |
+| Codex CLI 0.155.0-alpha.16.3 | Isolated baseline explicit `design-tokens` and availability checks passed; it had no fork. | At the time of these traces, `superpowers@superpowers-dev` was installed and enabled from the feature worktree. Explicit trace read cached fork `using-superpowers`, its routing reference, `brainstorming`, and installed `design-tokens`; it deferred writing. Automatic billing trace read cached fork bootstrap, `brainstorming`, and installed `create-prd`, asked one user question, and wrote no file. | The automatic trace did not separately read the routing reference. Both prompts added a no-write sentence; an unassisted gate was not tested in CLI. The explicit trace's repository-status check exited 128 because the temporary project was not a Git repository; skill reads still completed. The CLI remote catalog query failed, so its inventory alone cannot enumerate all remote entries; the desktop uninstall tool confirmed removal of the exact upstream identity. |
 | Codex desktop | Existing task context can retain pre-install skills. | Local marketplace install and exact upstream uninstall completed through supported controls. | **Pending:** desktop was not restarted and no fresh desktop task was run. Use the guide's exact new-task prompts; do not treat CLI behavior as desktop verification. |
-| OMP 18.2.6 | Initial active package was upstream `superpowers` 6.4.2. Earlier isolated fork probes used explicit extension loading; an initial `--plugin-dir` attempt that read upstream was excluded. | `omp plugin list --json` lists one enabled `superpowers` package at `~/.omp/plugins/node_modules/superpowers`; that path is a symlink resolving to this worktree. Normal fresh explicit trace read fork bootstrap, routing reference, and `design-tokens`. Automatic billing trace read `brainstorming`, `create-prd`, fork bootstrap, and routing reference; it asked one product question. Named missing-skill trace attempted `skill://missing-personal-skill`, got `Unknown skill`, and requested a readable installation without substituting. Unassisted preapproval trace read fork bootstrap, reference, `design-tokens`, and `brainstorming`; it performed only read-only inspection, wrote no files, and asked one settings-purpose question. | Normal installed OMP passes these four first-response cases. It did not generate a token file or exercise later approvals, extraction, dispatch, artifact quality, or browser behavior. |
+| OMP 18.2.6 | Initial active package was upstream `superpowers` 6.4.2. Earlier isolated fork probes used explicit extension loading; an initial `--plugin-dir` attempt that read upstream was excluded. | At the time of these traces, `omp plugin list --json` listed one enabled `superpowers` package at `~/.omp/plugins/node_modules/superpowers`; that symlink resolved to the feature worktree. Normal fresh explicit trace read fork bootstrap, routing reference, and `design-tokens`. Automatic billing trace read `brainstorming`, `create-prd`, fork bootstrap, and routing reference; it asked one product question. Named missing-skill trace attempted `skill://missing-personal-skill`, got `Unknown skill`, and requested a readable installation without substituting. Unassisted preapproval trace read fork bootstrap, reference, `design-tokens`, and `brainstorming`; it performed only read-only inspection, wrote no files, and asked one settings-purpose question. | Normal installed OMP passes these four first-response cases. It did not generate a token file or exercise later approvals, extraction, dispatch, artifact quality, or browser behavior. |
 
 The earlier Task 1–3 tables cover explicit availability, unreadable skill,
 missing command and subskill, automatic unavailable, overlapping documents,
@@ -193,3 +193,19 @@ exited 0 (one Node test entry, zero failures). The test asserts that after
 before the next user message. `bash tests/codex/test-marketplace-manifest.sh`
 exited 0, `bash tests/claude-code/test-sdd-workspace.sh` exited 0, and
 `git diff --check` exited 0. No Pi extension change was needed.
+
+### Final checkout and installation path
+
+The reviewed branch was fast-forwarded into clean `main` at `795c9b2`, then its
+temporary worktree and feature branch were removed. The Codex local marketplace
+was re-registered at `/home/lucasmedeiros/Development/projects/superpowers`,
+and `superpowers@superpowers-dev` was reinstalled from that path. Its cached
+bootstrap contains the routing pointer and its cached brainstorming and
+writing-plans skills contain the corrected sibling-relative reference path.
+OMP was relinked through `omp plugin link` and its enabled `superpowers`
+symlink now resolves to the same main checkout. The focused Pi, marketplace,
+and SDD workspace tests passed again on `main`; the checkout was clean after
+integration. The fresh CLI and OMP traces above predate this path move, so
+runtime behavior after the move remains supported by installed-file checks,
+not a new model-session replay. Desktop restart and fresh-task acceptance
+remain pending.
