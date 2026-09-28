@@ -6,7 +6,7 @@ Date: 2026-09-28. Base commit: `52645a6`. Prompts and acceptance criteria are in
 
 The initial OMP command used `--plugin-dir <checkout>` while the active upstream OMP package remained installed. Its trace resolved `skill://using-superpowers` and `skill://brainstorming` from upstream, and did not read the new reference. The earlier claim that this was fork GREEN evidence was **incorrect**. Those runs are excluded from the fork verdicts below.
 
-For valid OMP A/B runs, I archived base commit `52645a6` to `/tmp/personal-skill-routing-base-repo` and invoked each package with `--no-extensions -e <package>/.pi/extensions/superpowers.ts --plugin-dir <package>` and isolated `PI_PACKAGE_DIR=/tmp/personal-skill-routing-omp-packages-{base,green}`. The explicit extension is the only bootstrap injected for these runs. In the exact `design-tokens` baseline, the `skill://using-superpowers` read result had no `personal-skill-routing.md` pointer; in the fork run it did, and the trace separately read `skill://using-superpowers/references/personal-skill-routing.md` with `## Selection`. No active OMP installation was changed.
+For valid OMP A/B runs, I archived base commit `52645a6` to `/tmp/personal-skill-routing-base-repo` and invoked each package with `--no-extensions -e <package>/.pi/extensions/superpowers.ts --plugin-dir <package>` and isolated `PI_PACKAGE_DIR=/tmp/personal-skill-routing-omp-packages-{base,green}`. The explicit extension is the only bootstrap injected for these runs. Both prompts appended “Do not write files in this evaluation; describe the exact next action” to the scenario text, so these runs verify skill loading and reference provenance rather than an unassisted approval-gate decision. The baseline `skill://using-superpowers` read result had no `personal-skill-routing.md` pointer; in the fork run it did, and the trace separately read `skill://using-superpowers/references/personal-skill-routing.md` with `## Selection`. No active OMP installation was changed.
 
 Codex CLI 0.155.0-alpha.16.3 ran from an isolated `CODEX_HOME` with installed personal skills. It did **not** load this fork; its results are baseline/fixture observations only. Fork activation through a local Codex marketplace belongs to Task 4. OMP version was 18.2.6.
 
@@ -14,7 +14,7 @@ Codex CLI 0.155.0-alpha.16.3 ran from an isolated `CODEX_HOME` with installed pe
 
 | Case | Observed result | Verdict |
 | --- | --- | --- |
-| Exact explicit `design-tokens`, isolated base OMP | Read `skill://using-superpowers`, `skill://brainstorming`, and `skill://design-tokens`; held the writing gate. Did not read a routing reference because none existed. | Existing behavior **passed** named skill reading and gate; reference absent. No behavioral RED claimed for this valid A/B run. |
+| Explicit `design-tokens`, isolated base OMP with an added no-write instruction | Read `skill://using-superpowers`, `skill://brainstorming`, and `skill://design-tokens`; wrote no file. Did not read a routing reference because none existed. | Existing behavior **passed** named skill reading; reference absent. The prompt itself required no writing, so this run does not independently prove gate behavior. |
 | Exact explicit `design-tokens`, Codex CLI | Read installed `design-tokens/SKILL.md`; final said approval was needed and no files were written. | Pass. |
 | Overlapping `create-prd`/`trd`, Codex CLI | Read both installed skills and began “one integrated platform plan.” | Pass for reading and avoiding immediate duplicate files. |
 | Missing named skill, original active OMP installation | Reported skill absent and asked for its location. | Pass, but provenance is upstream OMP, not fork. |
@@ -33,7 +33,7 @@ that run selected `trd` without reading the shared reference.
 
 | Scenario | Observed skill/action and final behavior | Verdict |
 | --- | --- | --- |
-| Exact explicit `design-tokens` before approval | Read fork bootstrap, shared reference, and `design-tokens`; final: “Reading the requested skill now does not authorize executing its file-writing steps.” No files written. | Pass. |
+| Explicit `design-tokens` before approval with an added no-write instruction | Read fork bootstrap, shared reference, and `design-tokens`; final: “Reading the requested skill now does not authorize executing its file-writing steps.” No files written. | Pass for fork skill and reference loading. The prompt itself required no writing, so gate behavior remains unproven by this run. |
 | Exact relevant `create-prd` | Read `create-prd` and asked one product discovery question; no file written. | Pass. |
 | Exact backend design with irrelevant `design-brief` | Read `trd`, not `design-brief`; asked one question about the rate-limit purpose. | Pass. |
 | Exact missing named skill | Read attempt returned unavailable; final requested a readable SKILL.md location, without claiming use. | Pass. |
