@@ -24,8 +24,9 @@ If the spec covers multiple independent subsystems, it should have been broken i
 
 Before defining tasks, map out which files will be created or modified and what each one is responsible for. This is where decomposition decisions get locked in.
 
-Read `skills/using-superpowers/references/personal-skill-routing.md` before
-defining tasks. For relevant work, place `skillui` extraction and
+Read `../using-superpowers/references/personal-skill-routing.md` relative to
+this loaded skill's directory before defining tasks. For relevant work, place
+`skillui` extraction and
 `design-tokens` before components that depend on them, project rule authoring
 before work governed by those rules, as-built schema documentation after the
 schema exists, and `playwright-cli` browser verification after the browser work.

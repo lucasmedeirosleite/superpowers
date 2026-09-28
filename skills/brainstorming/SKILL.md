@@ -207,7 +207,8 @@ is the whole process.
 - Focus on understanding: purpose, constraints, success criteria
 
 **Personal skill checkpoint:** After intent is clear and before presenting design
-sections, read `skills/using-superpowers/references/personal-skill-routing.md`.
+sections, read `../using-superpowers/references/personal-skill-routing.md`
+relative to this loaded skill's directory.
 Check available `create-prd`, `design-brief`, `user-flow-diagram`, `trd`, and
 `database-schema-documentation` only where their specific methods fit the
 design. Existing project rules or browser state may call for read-only
