@@ -126,3 +126,18 @@ Codex CLI and desktop runs against an installed fork, and real browser or
 artifact execution, remain outside this task's evidence. The optional Codex
 package archive test exited 9 because `zip` is absent from this environment;
 its manifest check passed, but archive assertions could not run.
+
+### Task 3 review correction: brief authority
+
+The first Task 3 edit said to put selected personal-skill requirements in the
+subagent dispatch context, conflicting with the generated brief's role as the
+single requirements source. The revised checkpoint says to append them to the
+generated task brief after `task-brief` runs, preserve extracted plan text,
+reappend after regeneration, and point to the brief from the dispatch. One
+fresh isolated OMP probe read the revised skill and proposed that exact
+placement and extraction → tokens → components order. Its JSON trace is
+`/tmp/personal-skill-routing-task3/green/subagent-brief-fix.jsonl`. The probe
+forbade writing, so it verifies the stated workflow, not an actual augmented
+brief or dispatched worker. `bash tests/claude-code/test-sdd-workspace.sh`
+passed, including the generated-brief location; the Pi test and diff check
+also passed.

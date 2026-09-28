@@ -265,12 +265,15 @@ and fix-round diffs need it.
   `../using-superpowers/references/personal-skill-routing.md` before dispatch.
   Check the relevant `skillui`, `design-tokens`, `ogt-docs-rules`, or
   `database-schema-documentation` skill and its required command or subskill.
-  Put selected, available skill requirements and the dependency order in the
-  dispatch context so the implementer applies them alongside the task brief;
-  tell it to read those skills in its own environment. Keep extraction and
-  tokens before dependent components, and as-built schema documentation after
-  implementation. Follow the reference's unavailable-skill rule and keep the
-  approved plan's writing gates.
+  After `task-brief` extracts the plan task, append a concise **Personal skill
+  requirements** section to that generated brief: selected available skills,
+  their task-specific method, and dependency order. Tell the implementer there
+  to read those skills in its own environment. Keep extraction and tokens before
+  dependent components, and as-built schema documentation after implementation.
+  Preserve the extracted plan text. The script overwrites the brief when rerun,
+  so append this section again on a retry. In the dispatch, point to the brief
+  without copying these requirements into context. Follow the reference's
+  unavailable-skill rule and keep the approved plan's writing gates.
 - **Report file:** name the implementer's report file after the brief
   (brief `…/task-N-brief.md` → report `…/task-N-report.md`) and put it in
   the dispatch prompt. The implementer writes the full report there and
