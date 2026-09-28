@@ -1,45 +1,52 @@
 # Personal skill routing: Task 1 evaluation
 
-Date: 2026-09-28. Base: `52645a6`. All sessions were fresh and used isolated
-empty `/tmp/personal-skill-routing-baseline-*` projects. OMP loaded this checkout
-with `--plugin-dir`. Codex CLI used the installed personal skills in
-`~/.agents/skills`; this Task 1 checkpoint did not switch Codex to the fork.
-Prompts and expected behavior are in `tests/personal-skill-routing/scenarios.md`.
+Date: 2026-09-28. Base commit: `52645a6`. Prompts and acceptance criteria are in `tests/personal-skill-routing/scenarios.md`. All project writes were confined to `/tmp/personal-skill-routing-*`.
 
-## Baseline, before editing the skill
+## Harness provenance and correction
 
-| Scenario and harness | Actual excerpt | Verdict |
+The initial OMP command used `--plugin-dir <checkout>` while the active upstream OMP package remained installed. Its trace resolved `skill://using-superpowers` and `skill://brainstorming` from upstream, and did not read the new reference. The earlier claim that this was fork GREEN evidence was **incorrect**. Those runs are excluded from the fork verdicts below.
+
+For valid OMP A/B runs, I archived base commit `52645a6` to `/tmp/personal-skill-routing-base-repo` and invoked each package with `--no-extensions -e <package>/.pi/extensions/superpowers.ts --plugin-dir <package>` and isolated `PI_PACKAGE_DIR=/tmp/personal-skill-routing-omp-packages-{base,green}`. The explicit extension is the only bootstrap injected for these runs. In the exact `design-tokens` baseline, the `skill://using-superpowers` read result had no `personal-skill-routing.md` pointer; in the fork run it did, and the trace separately read `skill://using-superpowers/references/personal-skill-routing.md` with `## Selection`. No active OMP installation was changed.
+
+Codex CLI 0.155.0-alpha.16.3 ran from an isolated `CODEX_HOME` with installed personal skills. It did **not** load this fork; its results are baseline/fixture observations only. Fork activation through a local Codex marketplace belongs to Task 4. OMP version was 18.2.6.
+
+## Baseline before the Task 1 edit
+
+| Case | Observed result | Verdict |
 | --- | --- | --- |
-| Explicit `design-tokens`, Codex CLI 0.155.0-alpha.16.3 | Command read `/home/lucasmedeiros/.agents/skills/design-tokens/SKILL.md`; final: “I used the design-tokens skill ... Once you approve or adjust that direction, I can draft ... tokens ... I wrote no files.” | Pass. Available skill read; gate held. |
-| Explicit `design-tokens`, OMP 18.2.6 | “I will not invoke **design-tokens** or generate tokens yet. The sequence is: approve the design ... use **design-tokens** during implementation.” | **RED.** It deferred reading an explicitly requested available skill. Gate held. |
-| Missing named skill, OMP | “`missing-personal-skill` is absent, so I can’t plan the API using your required workflow. I won’t substitute another skill.” | Pass. Unavailability reported. |
-| Overlapping `create-prd` and `trd`, Codex CLI | Command read both `create-prd/SKILL.md` and `trd/SKILL.md`; first response: “I’ll use the create-prd and trd guidance to shape one integrated platform plan.” | Pass for skill reading and single response artifact. This did not exercise Superpowers' reviewed-spec gate because the fork was not loaded. |
+| Exact explicit `design-tokens`, isolated base OMP | Read `skill://using-superpowers`, `skill://brainstorming`, and `skill://design-tokens`; held the writing gate. Did not read a routing reference because none existed. | Existing behavior **passed** named skill reading and gate; reference absent. No behavioral RED claimed for this valid A/B run. |
+| Exact explicit `design-tokens`, Codex CLI | Read installed `design-tokens/SKILL.md`; final said approval was needed and no files were written. | Pass. |
+| Overlapping `create-prd`/`trd`, Codex CLI | Read both installed skills and began “one integrated platform plan.” | Pass for reading and avoiding immediate duplicate files. |
+| Missing named skill, original active OMP installation | Reported skill absent and asked for its location. | Pass, but provenance is upstream OMP, not fork. |
+| Unreadable named skill, Codex CLI | Found temporary `SKILL.md` with no read bits; reported it could not use that skill. | Pass. |
+| Missing `ogt-docs-rules-code`, Codex CLI | Read the root skill and stated the specialized subskill was absent. | Pass. |
+| Missing `skillui` CLI, first Codex attempt | Login shell restored the global executable despite a restricted `PATH`; `skillui --help` succeeded. | **Invalid fixture**, excluded. |
+| Missing `skillui` CLI, isolated Codex `HOME` | Read the skill; `skillui --help` exited 127, and final reported command unavailable. | Pass. |
 
-The ordinary sandbox blocked fresh sessions: Codex reported `Operation not
-permitted` for the model endpoint, and OMP could not write its runtime database.
-The evaluations above were rerun through approved execution with read-only or
-no-write prompts. An isolated OMP home lacked model credentials, so the normal
-OMP profile was used with a temporary project.
+The original sandbox blocked Codex model networking and OMP runtime writes. These fresh sessions ran through approved execution. The Codex command fixture used a temporary `HOME` plus `CODEX_HOME` so the login shell could not restore `~/.local/bin/skillui`.
 
-## After the routing reference and bootstrap pointer
+## Fork-loaded OMP results
 
-| Scenario and harness | Actual excerpt or trace | Verdict |
+All rows used the explicit fork extension and JSON trace. The shared reference
+was read in each fork-loaded case except the backend-only irrelevant-skill case;
+that run selected `trd` without reading the shared reference.
+
+| Scenario | Observed skill/action and final behavior | Verdict |
 | --- | --- | --- |
-| Explicit `design-tokens`, first OMP run | “**design-tokens** depends on an agreed visual direction, so token generation must wait.” No skill read was observed in this text-only run. | Still unresolved; bootstrap wording was tightened and the exact prompt rerun with JSON trace. |
-| Explicit `design-tokens`, OMP retest | JSON trace includes `read {'path': 'skill://design-tokens'}`. Final: “**design-tokens** generation waits for an approved direction ... No files will be written.” | **GREEN** for immediate named-skill reading and approval gate. The trace did not show a separate read of the routing reference; this remains a coverage concern. |
-| Missing named skill, OMP | “`missing-personal-skill` is unavailable in the isolated inventory ... I won’t substitute another skill or claim to have used it.” | Pass. |
+| Exact explicit `design-tokens` before approval | Read fork bootstrap, shared reference, and `design-tokens`; final: “Reading the requested skill now does not authorize executing its file-writing steps.” No files written. | Pass. |
+| Exact relevant `create-prd` | Read `create-prd` and asked one product discovery question; no file written. | Pass. |
+| Exact backend design with irrelevant `design-brief` | Read `trd`, not `design-brief`; asked one question about the rate-limit purpose. | Pass. |
+| Exact missing named skill | Read attempt returned unavailable; final requested a readable SKILL.md location, without claiming use. | Pass. |
+| Unreadable named skill fixture | Read attempt and local path returned `EACCES`; final named the unreadable `SKILL.md` and asked for a readable location. | Pass. |
+| `skillui` skill with missing command | Read `skillui`; with temporary `PATH=/usr/bin:/bin`, `skillui --help` exited 127; final reported missing CLI and no extraction. | Pass. First attempt with `always-ask` could not run the check and was excluded; retest used command approval. |
+| `ogt-docs-rules` root with absent code subskill | Read root; final used root-level guidance, stated `ogt-docs-rules-code` was absent, and made no false use claim. | Pass. |
+| Automatically relevant but filtered-out `create-prd` | Inventory filtered to `using-superpowers,brainstorming`; read attempt returned `Unknown skill: create-prd`; final continued product discovery without interruption or a use claim. | Pass. |
+| Overlapping PRD/TRD | Read `create-prd`, `trd`, and schema guidance; asked one context question, creating no duplicate documents. | Pass at this discovery stage; later spec creation was not exercised. |
+| Requested separate PRD/TRD | Read both; final planned three separate artifacts with their required sections after design approval. | Pass at planning stage; artifact creation was not exercised. |
+| Explicit user waiver of default approvals | Read fork reference and `design-tokens`; wrote `tokens.css` in the isolated temporary project despite default gates. | **Partial:** override honored and file created. Session hit its 120-second deadline during optional validation, so there is no completed final answer or full verification. |
 
-The reference contains all nine phase rows, selection rules, and document/stage
-boundaries. `node tests/pi/test-pi-extension.mjs` passed 6/6. `git diff --check`
-exited 0. These structural checks do not establish behavior for every scenario.
+The unreadable fixture was a temporary project-local `.agents/skills/unreadable-personal-skill/SKILL.md` with mode `000`. The missing subskill fixture kept a readable root `ogt-docs-rules/SKILL.md` and omitted `ogt-docs-rules-code`. The absent skill was left out of the inventory. These fixtures did not alter global installations.
 
-## Coverage limits
+## Structural checks and limits
 
-The unavailable and unreadable temporary fixtures were specified but not fully
-executed in both harnesses. The missing `skillui` command, missing
-`ogt-docs-rules` subskill, automatically unavailable skill, user gate override,
-and separate-artifact cases remain unrun behavioral scenarios at this checkpoint.
-The OMP JSON retest showed a read of `using-superpowers` and `design-tokens`, but
-not the routing reference itself. Later phase-checkpoint work should verify
-that agents read the shared policy and follow its rules. No claim of full
-cross-harness GREEN is made here.
+`node tests/pi/test-pi-extension.mjs` passed 6/6. `git diff --check` exited 0. Task 1 does not install the fork into Codex; Codex fork behavior remains a Task 4/5 verification dependency. The valid isolated base OMP run already read the explicitly named skill, so this evaluation does not present a fabricated behavioral RED for that case. The added policy and pointer are demonstrated by the fork-only reference read and the availability results, with the override case remaining partial due to the timeout.

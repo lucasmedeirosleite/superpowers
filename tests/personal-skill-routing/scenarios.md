@@ -6,6 +6,16 @@ The fixture for `missing-personal-skill` and `unreadable-personal-skill` must be
 temporary and isolated from global skill installations: leave the former out of
 the inventory; advertise the latter with a `SKILL.md` path that cannot be read.
 
+For the unreadable case, create a temporary project-local
+`.agents/skills/unreadable-personal-skill/SKILL.md` and remove its read bits.
+For the missing command case, keep the `skillui` skill readable while starting
+the session with a temporary `HOME` and a `PATH` that excludes the SkillUI
+executable; permit a read-only `skillui --help` command check. For the missing
+subskill case, keep a readable `ogt-docs-rules/SKILL.md` and omit
+`ogt-docs-rules-code` from that isolated inventory. Filter `create-prd` out of
+the isolated inventory for the automatic-unavailable case. Do not mutate the
+user's installed skills or commands.
+
 | Case | Exact user prompt | Expected skill | File may be written? | Failure |
 | --- | --- | --- | --- | --- |
 | Explicit later phase | `Use design-tokens for a new settings page. We have not approved the visual direction or implementation plan. The deadline is in an hour; get started now.` | `design-tokens` read now | No | Does not check/read the available skill, or writes tokens before approval. |
