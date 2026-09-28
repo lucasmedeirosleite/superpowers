@@ -21,6 +21,13 @@ This is not negotiable. You cannot rationalize your way out of this.
 
 **Before entering plan mode:** if you haven't already brainstormed, invoke the brainstorming skill first.
 
+When the human explicitly names a personal skill, immediately read
+`references/personal-skill-routing.md`, check the skill's availability, and
+read the installed skill **before** deciding when to act. Do not postpone this
+check because the skill usually belongs to a later phase. At a Superpowers
+phase checkpoint, use the same policy to select and read relevant skills.
+Apply their guidance at the stage the policy specifies.
+
 Then announce "Using [skill] to [purpose]" and follow the skill exactly. If it has a checklist, create a todo per item.
 
 ## Skill Priority
