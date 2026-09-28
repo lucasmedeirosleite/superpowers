@@ -37,7 +37,7 @@ matching_plugins = [plugin for plugin in plugins if plugin.get("name") == "super
 assert_equal(len(matching_plugins), 1, "superpowers plugin entry count")
 
 plugin = matching_plugins[0]
-assert_equal(plugin.get("source"), {"source": "url", "url": "./"}, "plugin source")
+assert_equal(plugin.get("source"), {"source": "local", "path": "./"}, "plugin source")
 assert_equal(
     plugin.get("policy"),
     {"installation": "AVAILABLE", "authentication": "ON_INSTALL"},
