@@ -176,6 +176,17 @@ in the workspace and read its tail; read a brief, not the whole plan.
   signatures, and test cases.
 - Mark the task's todo in_progress.
 
+Before starting a task whose approved plan calls for design-system extraction,
+tokens, enforceable rules, or documentation of a completed schema, consult
+`../using-superpowers/references/personal-skill-routing.md`. Check the relevant
+`skillui`, `design-tokens`, `ogt-docs-rules`, or
+`database-schema-documentation` skill and its required command or subskill;
+apply available guidance to this task. Keep extraction and tokens before
+components that depend on them, and document an as-built schema after its
+implementation. An automatically selected unavailable skill does not stop the
+plan; an explicitly requested one follows the reference's reporting rule.
+The approved plan and its gates still determine when files may be written.
+
 Every tool call is a turn that re-reads your whole context. Bookkeeping
 rides along with work — a ledger append in the same call as the commit,
 never in a call of its own.

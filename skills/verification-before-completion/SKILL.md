@@ -25,6 +25,11 @@ If you haven't run the verification command in this message, you cannot claim it
 BEFORE claiming any status or expressing satisfaction:
 
 1. IDENTIFY: What command proves this claim?
+   For browser-facing work needing browser verification, consult
+   `../using-superpowers/references/personal-skill-routing.md`; check whether
+   `playwright-cli` and its command are available. When they are, run the
+   relevant browser checks before the completion claim. Report unavailable
+   explicitly requested guidance as the reference directs.
 2. RUN: Execute the FULL command (fresh, complete)
 3. READ: Full output, check exit code, count failures
 4. VERIFY: Does output confirm the claim?

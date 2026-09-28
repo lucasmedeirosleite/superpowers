@@ -85,3 +85,44 @@ new checkpoints are intentionally short reminders at the owning phases; this
 evaluation supports continued behavior and explicit checkpoint placement,
 not an improvement measured by these prompts. Codex CLI and desktop fork
 activation remain Task 4/5 dependencies.
+
+Task 2 review limit: the UI-plan traces had two blocked command checks and the
+`ogt-docs-rules-code-front` subskill was absent. Their intended ordering did not
+verify that the extraction, browser, or specialized rules tooling was usable.
+
+## Task 3: execution and verification checkpoints
+
+The six prompts and acceptance criteria are in the “Execution and verification
+phase cases” table in `tests/personal-skill-routing/scenarios.md`. I ran each
+before and after in fresh OMP 18.2.6 sessions. The before package was an
+archive of Task 2 commit `1205961` in `/tmp/personal-skill-routing-task3/base-repo`;
+the after package was this worktree. Each call used `--no-extensions`, the
+package's explicit `.pi/extensions/superpowers.ts`, `--plugin-dir` for that
+package, a distinct `PI_PACKAGE_DIR`, `--no-session`, JSON output, and an
+isolated `/tmp` project. The first sandbox attempt could not open OMP's
+read-only agent database; the valid runs used approved runtime access. No
+active OMP package or Codex installation was changed. Raw traces are in
+`/tmp/personal-skill-routing-task3/{baseline,green}/*.jsonl`.
+
+Every prompt had the additional no-write sentence stated in the scenario
+file. These tests measure guidance reads, tool availability checks, and the
+proposed next action. They do **not** demonstrate actual extraction, rule or
+schema file content, a worker dispatch, browser interactions, or an unassisted
+approval gate.
+
+| Case | Before at `1205961` | After checkpoint edit | Result |
+| --- | --- | --- | --- |
+| Inline UI task | Read `executing-plans`, `skillui`, and `design-tokens`; `skillui --help` succeeded; proposed extraction → tokens → components. | Same reads and command check; same order. | Pass before and after; no behavioral RED. |
+| Subagent UI task | Read `subagent-driven-development`, both specialist skills, and implementer template; `skillui --help` succeeded; described staged briefs. | Same reads and check; brief explicitly carried extraction and token requirements to dependent component work. | Pass before and after; actual dispatch untested. |
+| Rules authoring | Read `ogt-docs-rules`; attempted `ogt-docs-rules-code` and `ogt-docs-rules-code-back`, both unavailable; used root guidance without claiming specialized use. | Same checks and next action under approved execution. | Pass before and after. |
+| As-built schema | Read `database-schema-documentation` and `executing-plans`; used implemented migrations/models as source. | Same reads; kept documentation after implementation. | Pass before and after. |
+| Browser completion | Read `playwright-cli`; proposed browser checks before a completion claim, but did not check CLI availability and named `browser.open` rather than the skill's command. | Read `playwright-cli`; `which playwright-cli` succeeded; proposed `playwright-cli open` and fresh browser evidence before claiming completion. | Observable command-check improvement; no browser run in fixture. |
+| Explicit early SkillUI | Read `skillui` and brainstorming; `skillui --help` succeeded; deferred extraction until approvals. | Same reads, command check, and gate. | Pass before and after; prompt itself prohibited writes. |
+
+`node --test tests/pi/test-pi-extension.mjs` exited 0 (one test entry,
+internally six checks). `git diff --check` exited 0. These checks establish
+checkpoint wording and OMP guidance behavior in the isolated fixture. Fresh
+Codex CLI and desktop runs against an installed fork, and real browser or
+artifact execution, remain outside this task's evidence. The optional Codex
+package archive test exited 9 because `zip` is absent from this environment;
+its manifest check passed, but archive assertions could not run.

@@ -260,6 +260,17 @@ and fix-round diffs need it.
   (5) the report-file path and report contract. Exact values (numbers,
   magic strings, signatures, test cases) appear only in the brief. Never
   make a subagent read the whole plan file.
+- **Personal skill checkpoint:** for a task involving design-system extraction,
+  tokens, enforceable rules, or documentation of a completed schema, consult
+  `../using-superpowers/references/personal-skill-routing.md` before dispatch.
+  Check the relevant `skillui`, `design-tokens`, `ogt-docs-rules`, or
+  `database-schema-documentation` skill and its required command or subskill.
+  Put selected, available skill requirements and the dependency order in the
+  dispatch context so the implementer applies them alongside the task brief;
+  tell it to read those skills in its own environment. Keep extraction and
+  tokens before dependent components, and as-built schema documentation after
+  implementation. Follow the reference's unavailable-skill rule and keep the
+  approved plan's writing gates.
 - **Report file:** name the implementer's report file after the brief
   (brief `…/task-N-brief.md` → report `…/task-N-report.md`) and put it in
   the dispatch prompt. The implementer writes the full report there and
