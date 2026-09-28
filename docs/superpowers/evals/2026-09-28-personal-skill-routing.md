@@ -50,3 +50,38 @@ The unreadable fixture was a temporary project-local `.agents/skills/unreadable-
 ## Structural checks and limits
 
 `node tests/pi/test-pi-extension.mjs` passed 6/6. `git diff --check` exited 0. Task 1 does not install the fork into Codex; Codex fork behavior remains a Task 4/5 verification dependency. The valid isolated base OMP run already read the explicitly named skill, so this evaluation does not present a fabricated behavioral RED for that case. The added policy and pointer are demonstrated by the fork-only reference read and the availability results, with the override case remaining partial due to the timeout.
+
+## Task 2: design and planning checkpoints
+
+The exact prompts and acceptance criteria are in the “Design and planning phase
+cases” table in `tests/personal-skill-routing/scenarios.md`. Before editing the
+two phase skills, I ran all seven prompts in fresh OMP 18.2.6 sessions against
+the Task 1 fork at `db4f1c3`. After adding the checkpoints, I repeated all
+seven in new sessions against the edited fork. Each run used an isolated `/tmp`
+project and `PI_PACKAGE_DIR`, `--no-extensions`, the checkout's explicit
+`.pi/extensions/superpowers.ts`, `--plugin-dir` pointing to this checkout,
+`--no-session`, JSON trace, and a 90-second limit. This avoids attributing an
+active upstream OMP package to the fork. Raw JSON traces are in
+`/tmp/personal-skill-routing-task2/logs/{case}-{before,after}.jsonl`.
+The run appended “Do not write files in this evaluation; describe the exact
+next action” to each exact scenario prompt. Consequently, these checks test
+skill selection, one-interview pacing, and intended stage order, but not an
+unassisted file-writing gate or completed artifact content.
+
+| Case | Before: observed fork reads and first response | After: observed fork reads and first response | Verdict |
+| --- | --- | --- | --- |
+| Product segment | Read `create-prd`; asked one question about approval evidence; no extra PRD. | Read `create-prd`; asked one question about grant approval evidence; no extra PRD. | Pass before and after. |
+| Branching UI flow | Read `design-brief` and `user-flow-diagram`; asked one fallback-path question; no extra artifact. | Read both; asked one support-recovery question; no extra artifact. | Pass before and after. |
+| API and proposed data model | Read `trd` and `database-schema-documentation`; asked one question about reservation units; described one reviewable design. | Read both; asked one allocation-model question; described one reviewable design. | Pass before and after. |
+| Backend without UI | Read `trd`, no UI skill; asked one service-purpose question. | Read `trd`, no `design-brief` or `user-flow-diagram`; asked one service-purpose question. | Pass before and after. |
+| Requested PRD and TRD | Read `create-prd` and `trd`; planned one interview and three artifacts after design approval. | Read both; explicitly retained one interview, three requested artifacts after design approval, then Superpowers spec review. | Pass before and after. Actual artifact content not exercised. |
+| UI plan order | Read `writing-plans`, `skillui`, `design-tokens`, `ogt-docs-rules`, and `playwright-cli`; planned extraction and tokens before components, browser verification after. | Read the same guidance and gave the same dependency order. | Pass before and after. Exact task paths unavailable in empty fixture. |
+| As-built schema plan | Read `writing-plans` and `database-schema-documentation`; put documentation after migrations/model code. | Read both; explicitly put as-built documentation after implemented and verified schema. | Pass before and after. |
+
+Every after trace read the fork's `using-superpowers` bootstrap and the shared
+`references/personal-skill-routing.md`. The baseline already met these
+first-response criteria, so there is **no behavioral RED** to claim. The two
+new checkpoints are intentionally short reminders at the owning phases; this
+evaluation supports continued behavior and explicit checkpoint placement,
+not an improvement measured by these prompts. Codex CLI and desktop fork
+activation remain Task 4/5 dependencies.

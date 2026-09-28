@@ -206,6 +206,15 @@ is the whole process.
 - Only one question per message - if a topic needs more exploration, break it into multiple questions
 - Focus on understanding: purpose, constraints, success criteria
 
+**Personal skill checkpoint:** After intent is clear and before presenting design
+sections, read `skills/using-superpowers/references/personal-skill-routing.md`.
+Check available `create-prd`, `design-brief`, `user-flow-diagram`, `trd`, and
+`database-schema-documentation` only where their specific methods fit the
+design. Existing project rules or browser state may call for read-only
+`ogt-docs-rules` or `playwright-cli` during exploration. Use relevant guidance
+within this one-question-at-a-time design and its existing review gate; do not
+start another interview or create an unrequested document.
+
 **Exploring approaches:**
 
 - Propose 2-3 different approaches with trade-offs
