@@ -141,3 +141,55 @@ forbade writing, so it verifies the stated workflow, not an actual augmented
 brief or dispatched worker. `bash tests/claude-code/test-sdd-workspace.sh`
 passed, including the generated-brief location; the Pi test and diff check
 also passed.
+
+## Task 5: installed-fork acceptance
+
+The prior tables contain the before/after observations for every scenario in
+`tests/personal-skill-routing/scenarios.md`. They are **isolated prompt probes**,
+not evidence that the fork was installed in a normal session. The following
+matrix separates those results from the fresh installed-fork checks. Raw traces
+are in `/tmp/personal-skill-routing-codex-active/{explicit,automatic}.jsonl`
+and `/tmp/personal-skill-routing-omp-active/{explicit,automatic,unavailable,approval-gate}.jsonl`.
+OMP runs used 18.2.6 with `--mode=json --no-session --max-time=120` in an
+isolated `/tmp` project, with normal plugin discovery. The first attempt hit a
+read-only OMP agent database under sandboxing; the valid runs used approved
+runtime access and exited 0.
+
+| Harness | Baseline or before | Fresh installed fork | Limit |
+| --- | --- | --- | --- |
+| Codex CLI 0.155.0-alpha.16.3 | Isolated baseline explicit `design-tokens` and availability checks passed; it had no fork. | `superpowers@superpowers-dev` is installed and enabled from this checkout. Explicit trace read cached fork `using-superpowers`, its routing reference, `brainstorming`, and installed `design-tokens`; it deferred writing. Automatic billing trace read cached fork bootstrap, `brainstorming`, and installed `create-prd`, asked one user question, and wrote no file. | The automatic trace did not separately read the routing reference. Both prompts added a no-write sentence; an unassisted gate was not tested in CLI. The CLI remote catalog query failed, so its inventory alone cannot enumerate all remote entries; the desktop uninstall tool confirmed removal of the exact upstream identity. |
+| Codex desktop | Existing task context can retain pre-install skills. | Local marketplace install and exact upstream uninstall completed through supported controls. | **Pending:** desktop was not restarted and no fresh desktop task was run. Use the guide's exact new-task prompts; do not treat CLI behavior as desktop verification. |
+| OMP 18.2.6 | Initial active package was upstream `superpowers` 6.4.2. Earlier isolated fork probes used explicit extension loading; an initial `--plugin-dir` attempt that read upstream was excluded. | `omp plugin list --json` lists one enabled `superpowers` package at `~/.omp/plugins/node_modules/superpowers`; that path is a symlink resolving to this worktree. Normal fresh explicit trace read fork bootstrap, routing reference, and `design-tokens`. Automatic billing trace read `brainstorming`, `create-prd`, fork bootstrap, and routing reference; it asked one product question. Named missing-skill trace attempted `skill://missing-personal-skill`, got `Unknown skill`, and requested a readable installation without substituting. Unassisted preapproval trace read fork bootstrap, reference, `design-tokens`, and `brainstorming`; it performed only read-only inspection, wrote no files, and asked one settings-purpose question. | Normal installed OMP passes these four first-response cases. It did not generate a token file or exercise later approvals, extraction, dispatch, artifact quality, or browser behavior. |
+
+The earlier Task 1–3 tables cover explicit availability, unreadable skill,
+missing command and subskill, automatic unavailable, overlapping documents,
+requested separate artifacts, design and planning choices, inline and subagent
+execution choices, and browser verification. The live runs above confirm only
+their four selected installed-fork cases; the remaining scenario verdicts are
+from isolated sessions. The Task 2 UI-plan trace also had two blocked command
+checks and lacked `ogt-docs-rules-code-front`, so its ordering result is not
+proof that those tools worked.
+
+All nine names have a selection condition and phase checkpoint in the shared
+reference: `create-prd`, `design-brief`, `user-flow-diagram`, `trd`,
+`database-schema-documentation`, `skillui`, `design-tokens`, `ogt-docs-rules`,
+and `playwright-cli`. The branch diff changes Superpowers skills and routing
+documentation; it adds no copy of those external skill directories or runtime
+dependency on them. This is a private fork change; no upstream PR was opened.
+
+The Pi post-compaction bootstrap assertion is in
+`tests/pi/test-pi-extension.mjs`; its test result is recorded below. The
+Codex zip package check could not run because `zip` is absent. A tar.gz archive
+was created and inspected from a temporary normal checkout in Task 4 because
+the packaging script expects `.git` to be a directory. That check found the
+modified bootstrap and routing reference in the archive, but cannot rule out
+a zip-only packaging regression.
+
+### Final repository checks
+
+At the installed-fork gate, `node --test tests/pi/test-pi-extension.mjs`
+exited 0 (one Node test entry, zero failures). The test asserts that after
+`session_compact` the bootstrap appears once after the compaction summary and
+before the next user message. `bash tests/codex/test-marketplace-manifest.sh`
+exited 0, `bash tests/claude-code/test-sdd-workspace.sh` exited 0, and
+`git diff --check` exited 0. No Pi extension change was needed.
