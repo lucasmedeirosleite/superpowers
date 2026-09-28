@@ -205,7 +205,11 @@ writing-plans skills contain the corrected sibling-relative reference path.
 OMP was relinked through `omp plugin link` and its enabled `superpowers`
 symlink now resolves to the same main checkout. The focused Pi, marketplace,
 and SDD workspace tests passed again on `main`; the checkout was clean after
-integration. The fresh CLI and OMP traces above predate this path move, so
-runtime behavior after the move remains supported by installed-file checks,
-not a new model-session replay. Desktop restart and fresh-task acceptance
-remain pending.
+integration. Fresh sessions after the move also exited 0. The Codex CLI trace
+at `/tmp/personal-skill-routing-final-codex/explicit.jsonl` read the cached
+fork bootstrap, routing reference, and installed `design-tokens`; the OMP trace
+at `/tmp/personal-skill-routing-final-omp/explicit.jsonl` read the same three
+skills through normal plugin discovery. Both deferred token creation. These
+prompts included an explicit no-write instruction and do not independently
+prove the approval gate. Desktop restart and fresh-task acceptance remain
+pending.
